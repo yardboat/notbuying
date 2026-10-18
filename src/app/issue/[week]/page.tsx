@@ -4,6 +4,7 @@ import { CHARITIES, CATEGORY_LABEL, impactLine, type Category } from "@/lib/char
 import { activeGoal, goalSaved, issueNumber, userById, weekRecap } from "@/lib/ledger";
 import { addDays, isSundayET, pct, prettyDate, usd, weekStartET } from "@/lib/money";
 import { currentUserId } from "@/lib/session";
+import { makeShareId } from "@/lib/share";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,10 @@ export default async function Issue({ params }: { params: Promise<{ week: string
 
       <Link href="/dashboard#send" className="btn btn-hot mt-10 w-full text-lg">Send this week&apos;s difference →</Link>
       <p className="mt-3 text-center text-xs text-ink-2">Screenshot the card. Post it. Make a friend feel weird about their cart.</p>
+      <p className="mt-4 text-center text-sm">
+        <Link href={`/i/${makeShareId(uid, week)}`} className="underline decoration-2 underline-offset-4">Share this issue →</Link>
+        <span className="block text-xs text-ink-2">Public link. First name only, never your number.</span>
+      </p>
     </main>
   );
 }

@@ -20,13 +20,13 @@ export default async function Home() {
       {/* 01 — the machine */}
       <section className="mx-auto flex min-h-[88dvh] max-w-5xl flex-col justify-center px-4 pb-16 sm:px-6">
         <p className="type mb-6 text-sm text-ink-2">Issue 00 · a manifesto in five cuts</p>
-        <h1 className="display text-[15vw] sm:text-[8.5rem]">
-          <span className="block">Every</span>
-          <span className="block">
-            <span className="cutout-hot">no</span> is a
+        <h1 className="display text-[clamp(2.5rem,calc(14vw-5px),8.5rem)]">
+          <span className="hero-cut block" style={{ ["--cut-d" as string]: "0ms", ["--cut-r" as string]: "-2deg" }}>Every</span>
+          <span className="hero-cut block" style={{ ["--cut-d" as string]: "90ms", ["--cut-r" as string]: "1.5deg" }}>
+            <span className="cutout-hot hero-no">no</span> is a
           </span>
-          <span className="block">yes to</span>
-          <span className="block">something.</span>
+          <span className="hero-cut block" style={{ ["--cut-d" as string]: "180ms", ["--cut-r" as string]: "-1deg" }}>yes to</span>
+          <span className="hero-cut block" style={{ ["--cut-d" as string]: "270ms", ["--cut-r" as string]: "2deg" }}>something.</span>
         </h1>
         <p className="mt-10 max-w-md text-base leading-relaxed text-ink-2">Scroll. It takes about a minute. Then you get a number to text.</p>
       </section>

@@ -217,3 +217,168 @@ body::before {
     transition-duration: 1ms !important;
   }
 }
+
+/* ───────────────────────── craft (append-only, craft-engineer) ───────────────────────── */
+/* Everything below animates transform/opacity only. The global reduced-motion rule above
+   collapses durations; explicit reduce blocks here also drop delays so final state is instant. */
+
+/* Hero: headline lines cut in, "no" slaps down. SSR-safe (fill: both ends visible). */
+@keyframes cut-in {
+  from { transform: translateY(0.35em) rotate(var(--cut-r, -2deg)); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.hero-cut {
+  animation: cut-in 460ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  animation-delay: var(--cut-d, 0ms);
+}
+.hero-no {
+  animation: slap-no 420ms cubic-bezier(0.3, 1.5, 0.5, 1) 520ms both;
+}
+@keyframes slap-no {
+  0% { transform: scale(1.9) rotate(-10deg); opacity: 0; }
+  65% { transform: scale(0.95) rotate(2deg); opacity: 1; }
+  100% { transform: rotate(1deg); opacity: 1; }
+}
+
+/* Reveal: content is visible by default; JS opts below-the-fold sections into the feed. */
+@keyframes feed-in {
+  from { transform: translateY(-16px) scaleY(0.97); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.reveal[data-reveal="pending"] { opacity: 0; transform: translateY(-16px); }
+.reveal[data-reveal="in"] { animation: feed-in 460ms cubic-bezier(0.2, 0.9, 0.2, 1) both; transform-origin: top; }
+/* Stamp waits for its sheet to land, then slaps. */
+.reveal[data-reveal="pending"] .slap { animation: none; opacity: 0; }
+.reveal[data-reveal="in"] .slap { animation-delay: 420ms; }
+
+/* Phone demo: receipt replies lift and show a torn perforated edge on hover/focus. */
+section .max-w-sm.border-2 > div > div {
+  position: relative;
+  transition: transform 180ms cubic-bezier(0.3, 1.4, 0.5, 1);
+  will-change: transform;
+}
+section .max-w-sm.border-2 > div > div.border-2::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: -9px;
+  height: 8px;
+  background: radial-gradient(circle at 5px 8px, transparent 4px, var(--ink) 4.5px, var(--ink) 5.5px, transparent 6px) repeat-x;
+  background-size: 10px 8px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 160ms ease, transform 180ms ease;
+  pointer-events: none;
+}
+@media (hover: hover) {
+  section .max-w-sm.border-2 > div > div.border-2:hover { transform: translate(-3px, -4px) rotate(-1.4deg); }
+  section .max-w-sm.border-2 > div > div.border-2:hover::after { opacity: 1; transform: none; }
+  section .max-w-sm.border-2 > div > div.bg-ink:hover { transform: translateX(-3px) rotate(0.8deg); }
+}
+
+/* Goal meter: ransom-note goal label cut from receipts. */
+.gm-has-ransom { container-type: inline-size; }
+/* The goal label above becomes the collage; keep the heading for assistive tech only. */
+h1:has(+ .gm-has-ransom) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.rn {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.18em 0.45em;
+  font-size: var(--rn-size, 3rem);
+  line-height: 1;
+  padding-top: 0.15em;
+}
+.rn-word { display: inline-flex; flex-wrap: nowrap; gap: 0.04em; }
+.rn-scrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0.78em;
+  height: 1.12em;
+  padding: 0.1em 0.12em 0.04em;
+  transform: translateY(var(--rn-dy)) rotate(var(--rn-rot));
+}
+.rn-ch { position: relative; display: block; }
+.rn-f-display .rn-ch { font-family: var(--font-archivo-black), Impact, sans-serif; letter-spacing: -0.02em; }
+.rn-f-type .rn-ch { font-family: var(--font-special-elite), "Courier New", monospace; font-size: 1.08em; }
+.rn-f-mono .rn-ch { font-family: var(--font-plex-mono), monospace; font-weight: 700; font-size: 0.96em; }
+.rn-fine {
+  position: absolute;
+  top: 0.14em;
+  left: 0.2em;
+  right: 0.1em;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: max(6px, 0.09em);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 0.55;
+}
+.rn-scrap.is-on { box-shadow: 0.04em 0.05em 0 rgba(21, 19, 15, 0.22); }
+.rn-receipt { background: #fbf9f3; color: var(--ink); }
+.rn-paper2 { background: var(--paper-2); color: var(--ink); }
+.rn-news { background: #d9d4c6; color: var(--ink); }
+.rn-ink { background: var(--ink); color: var(--paper); }
+.rn-hot { background: var(--hot); color: var(--hot-ink); }
+.rn-scrap.is-off {
+  background: transparent;
+  color: transparent;
+  outline: 2px dashed rgba(21, 19, 15, 0.28);
+  outline-offset: -3px;
+  transform: rotate(calc(var(--rn-rot) * 0.3));
+}
+.rn-scrap.is-off .rn-ch { -webkit-text-stroke: 1px rgba(21, 19, 15, 0.22); }
+.rn-tape {
+  position: absolute;
+  top: -0.18em;
+  left: 50%;
+  width: 0.9em;
+  height: 0.26em;
+  background: rgba(239, 235, 225, 0.72);
+  border: 1px solid rgba(21, 19, 15, 0.12);
+  transform: translateX(-50%) rotate(-8deg);
+}
+@keyframes rn-paste {
+  0% { transform: translate(0.25em, -0.55em) scale(1.35) rotate(calc(var(--rn-rot) + 14deg)); opacity: 0; }
+  55% { transform: translateY(var(--rn-dy)) scale(0.94) rotate(calc(var(--rn-rot) - 2deg)); opacity: 1; }
+  100% { transform: translateY(var(--rn-dy)) rotate(var(--rn-rot)); opacity: 1; }
+}
+.rn-paste { animation: rn-paste 340ms cubic-bezier(0.3, 1.3, 0.5, 1) var(--rn-delay, 0ms) both; }
+.rn-paste.is-latest { animation-duration: 520ms; }
+
+/* Receipt-tape strip under the count. */
+.gm-tape { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 3px; }
+.gm-stub {
+  height: 2.5rem;
+  border: 2px solid var(--ink);
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.gm-stub::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+.gm-stub.is-hot::before { background: var(--hot); }
+.gm-stub.is-on { animation: stub-in 260ms cubic-bezier(0.3, 1.4, 0.5, 1) var(--d) both; }
+.gm-stub.is-on::before { animation: stub-fill 220ms ease-out var(--d) both; }
+@keyframes stub-in { from { transform: none; } to { transform: rotate(var(--r)); } }
+@keyframes stub-fill { to { transform: scaleY(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cut, .hero-no, .rn-paste, .gm-stub.is-on, .gm-stub.is-on::before, .reveal .slap { animation-delay: 0ms !important; }
+}

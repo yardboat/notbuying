@@ -8,8 +8,11 @@ export function env(name: string): string | undefined {
   return cleaned || undefined;
 }
 
-export const appUrl = () =>
-  (env("NEXT_PUBLIC_APP_URL") ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")).replace(/\/$/, "");
+export const appUrl = () => {
+  // Previews link to their own stable branch URL; production uses the configured domain.
+  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL) return `https://${process.env.VERCEL_BRANCH_URL}`;
+  return (env("NEXT_PUBLIC_APP_URL") ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")).replace(/\/$/, "");
+};
 
 /**
  * Demo mode: until Twilio toll-free verification clears, carriers block outbound SMS.

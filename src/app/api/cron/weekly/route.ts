@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     const n = await issueNumber(u, week);
     const body = r.count
       ? `Issue ${String(n).padStart(2, "0")} is out. This week you said no ${r.count} time${r.count === 1 ? "" : "s"}: ${usd(r.skipped)} not spent, ${usd(r.pledged, { always2: true })} pledged. See it + send the donations: ${appUrl()}/issue/${week}`
-      : `Issue ${String(n).padStart(2, "0")}: a quiet week. The world kept selling, you kept your money? Text your skips as they happen, like: coffee 5`;
+      : `Issue ${String(n).padStart(2, "0")}: a quiet week. Nothing logged. Next time you walk past something, text it: coffee 5`;
     if (!demoMode()) {
       const res = await sendSms(u.phone, body);
       if (!res.ok) continue;

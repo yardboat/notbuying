@@ -18,10 +18,10 @@ export const CHARITIES: Record<string, Charity> = {
     // "$1 helps provide at least 10 meals" — feedingamerica.org/ways-to-give/faq/about-our-claims
     impact: { centsPerUnit: 10, unit: "meal", source: "https://www.feedingamerica.org/ways-to-give/faq/about-our-claims" },
   },
-  "water-org": { slug: "water-org", name: "Water.org", cause: "safe water access, so no one spends the day walking for it" },
-  dressforsuccess: { slug: "dressforsuccess", name: "Dress for Success", cause: "women's economic independence" },
+  "water-org": { slug: "water-org", name: "Water.org", cause: "safe water and sanitation, built with local partners" },
+  dressforsuccess: { slug: "dressforsuccess", name: "Dress for Success", cause: "career support for women" },
   habitat: { slug: "habitat", name: "Habitat for Humanity", cause: "affordable housing" },
-  givedirectly: { slug: "givedirectly", name: "GiveDirectly", cause: "direct cash to people in poverty" },
+  givedirectly: { slug: "givedirectly", name: "GiveDirectly", cause: "direct cash, no strings attached" },
 };
 
 export const CATEGORY_CHARITY: Record<Category, string> = {

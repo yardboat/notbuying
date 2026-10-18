@@ -17,11 +17,14 @@ export type Skip = {
 const MOUTH = [
   "Every no is a yes to something.",
   "Somewhere an ad budget just wept.",
-  "They wanted that money. You kept it.",
+  "They wanted it. You kept it.",
   "Intent 1, impulse 0.",
-  "One less thing owning you.",
   "The algorithm will have to cope.",
-  "Not today, capitalism.",
+  "The croissant industry will survive.",
+  "Your wallet says thanks.",
+  "Retargeting ads: wasted on you.",
+  "Quietly powerful.",
+  "Tap-to-buy has left the chat.",
 ];
 const mouth = (seed: number) => MOUTH[seed % MOUTH.length];
 
@@ -206,7 +209,7 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       await q("UPDATE users SET status = 'active' WHERE id = $1", [uid]);
       return "You're back. Text what you didn't buy, like: croissant 5";
     case "help":
-      return "Donate the Difference: text what you didn't buy + its price (croissant 5). Also: totals, undo, new goal bike 500, dashboard. Msg freq varies. Reply STOP to opt out.";
+      return "Donate the Difference: text what you skipped + price (croissant 5). Also: totals, undo, new goal bike 500, dashboard. Help: hello@notbuying.org. Msg&data rates may apply. STOP to opt out.";
     case "dashboard":
       return `Your dashboard: ${await dashboardLink(uid)}`;
     case "totals": {
@@ -257,7 +260,7 @@ async function skipReply(user: User, item: string, priceCents: number, raw: stri
     if (saved >= target && !r.goal.reached_at) {
       const q = await db();
       await q("UPDATE goals SET reached_at = now() WHERE id = $1", [r.goal.id]);
-      return `No ${item}. That's it: ${usd(saved)} skipped toward ${r.goal.label}. GOAL REACHED. ${pledgeTxt} Go get the thing, guilt-free. Then text: new goal ...`;
+      return `No ${item}. That's it: ${usd(saved)} skipped toward ${r.goal.label}. GOAL REACHED. ${pledgeTxt} Go get it. Then text: new goal ...`;
     }
     goalTxt = `${r.goal.label}: ${usd(saved)} of ${usd(target)} (${pct(saved, target)}%).`;
   }

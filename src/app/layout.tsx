@@ -2,17 +2,18 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-const archivo = localFont({ src: "../fonts/archivo-black-latin-400-normal.woff2", variable: "--font-archivo-black", display: "swap" });
+const archivo = localFont({ src: "../fonts/archivo-black-latin-400-normal.woff2", variable: "--font-archivo-black", display: "swap", fallback: ["Impact", "Arial Black", "sans-serif"] });
 const plex = localFont({
   src: [
     { path: "../fonts/ibm-plex-mono-latin-400-normal.woff2", weight: "400" },
-    { path: "../fonts/ibm-plex-mono-latin-500-normal.woff2", weight: "500" },
     { path: "../fonts/ibm-plex-mono-latin-700-normal.woff2", weight: "700" },
   ],
   variable: "--font-plex-mono",
   display: "swap",
+  fallback: ["ui-monospace", "Menlo", "monospace"],
 });
-const elite = localFont({ src: "../fonts/special-elite-latin-400-normal.woff2", variable: "--font-special-elite", display: "swap" });
+// Special Elite is decorative (labels, stamps): subset to Latin + punctuation, not preloaded.
+const elite = localFont({ src: "../fonts/special-elite-latin-400-normal.woff2", variable: "--font-special-elite", display: "swap", preload: false, fallback: ["Courier New", "monospace"] });
 
 export const metadata: Metadata = {
   title: "Donate the Difference",

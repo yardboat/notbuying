@@ -1,0 +1,9 @@
+{
+  "project": "donate-the-difference",
+  "pre_approved_usd": 30,
+  "approved_ceiling_usd": 50,
+  "spent_usd": 0,
+  "entries": [
+    { "date": "2026-10-18", "item": "notbuying.org domain (approved at $10.99 renewal) — pending purchase", "usd": 0, "agent": "coo", "ticket": "DTD-22" }
+  ]
+}

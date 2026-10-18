@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const archivo = localFont({ src: "../fonts/archivo-black-latin-400-normal.woff2", variable: "--font-archivo-black", display: "swap", fallback: ["Impact", "Arial Black", "sans-serif"] });
@@ -31,7 +32,10 @@ export const viewport: Viewport = { themeColor: "#efebe1", width: "device-width"
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${archivo.variable} ${plex.variable} ${elite.variable}`}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

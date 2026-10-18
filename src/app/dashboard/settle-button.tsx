@@ -12,12 +12,18 @@ export default function SettleButton({ charity, cents }: { charity: string; cent
   async function go() {
     setBusy(true);
     setMsg(null);
+    // Open the tab inside the tap so iOS Safari doesn't treat it as a popup, then point it at Every.org.
+    const win = window.open("about:blank", "_blank");
     const res = await fetch("/api/settle", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ charity }) });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (!res.ok) return setMsg(data.error ?? "Try again");
+    if (!res.ok) {
+      win?.close();
+      return setMsg(data.error ?? "Try again");
+    }
+    if (win) win.location.href = data.url;
+    else window.location.href = data.url; // popup blocked: go in this tab; success_url brings them back
     setPid(data.pid);
-    window.open(data.url, "_blank", "noopener");
   }
 
   async function confirm() {

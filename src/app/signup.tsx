@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export default function Signup({ signedIn }: { signedIn: boolean }) {
+export default function Signup({ signedIn, demo }: { signedIn: boolean; demo: boolean }) {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [step, setStep] = useState<"form" | "code">("form");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [f, setF] = useState({ goalLabel: "", goalAmount: "", name: "", phone: "", consent: false, code: "" });
+  const [f, setF] = useState({ goalLabel: "", goalAmount: "", name: "", phone: "", consent: false, code: "", invite: "" });
 
   if (signedIn) {
     return (
@@ -65,6 +65,12 @@ export default function Signup({ signedIn }: { signedIn: boolean }) {
             <span className="type text-sm text-ink-2">Mobile number</span>
             <input className="field" required type="tel" inputMode="tel" placeholder="(404) 555-0134" value={f.phone} onChange={set("phone")} autoComplete="tel" />
           </label>
+          {demo && (
+            <label className="block">
+              <span className="type text-sm text-ink-2">Invite code (prototype testers only)</span>
+              <input className="field" required value={f.invite} onChange={set("invite")} autoCapitalize="none" autoComplete="off" />
+            </label>
+          )}
           <label className="flex gap-3 text-sm leading-relaxed">
             <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[var(--hot)]" checked={f.consent} onChange={set("consent")} required />
             <span>

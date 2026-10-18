@@ -51,7 +51,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           {s.goal ? (
             <>
               <h1 className="display mt-2 text-5xl sm:text-7xl">{s.goal.label}</h1>
-              <GoalMeter saved={s.goal.saved} target={s.goal.target_cents} />
+              <GoalMeter saved={s.goal.saved} target={s.goal.target_cents} label={s.goal.label} />
               {s.goal.reached_at && <p className="stamp slap mt-6 text-xl">Goal reached</p>}
             </>
           ) : (

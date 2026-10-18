@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS skips (
 CREATE INDEX IF NOT EXISTS skips_user_idx ON skips(user_id, created_at);
 CREATE TABLE IF NOT EXISTS messages (
   id BIGSERIAL PRIMARY KEY,
+  sid TEXT,
   user_id BIGINT,
   direction TEXT NOT NULL,
   channel TEXT NOT NULL,
@@ -55,6 +56,9 @@ CREATE TABLE IF NOT EXISTS messages (
   intent TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS sid TEXT;
+CREATE INDEX IF NOT EXISTS messages_sid_idx ON messages(sid);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pending_confirm TEXT;
 CREATE TABLE IF NOT EXISTS auth_codes (
   phone TEXT PRIMARY KEY,
   code_hash TEXT NOT NULL,
@@ -70,6 +74,7 @@ CREATE TABLE IF NOT EXISTS settle_ups (
   clicked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   confirmed_at TIMESTAMPTZ
 );
+ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS sent_at TIMESTAMPTZ;
 CREATE TABLE IF NOT EXISTS weekly_sends (
   user_id BIGINT NOT NULL,
   week_start DATE NOT NULL,
@@ -88,8 +93,9 @@ async function init(): Promise<Query> {
       return res as never;
     }) as Query;
   }
+  if (process.env.VERCEL) throw new Error("DATABASE_URL is not set: refusing to run on an ephemeral database in a deployed environment.");
   const { PGlite } = await import("@electric-sql/pglite");
-  const dir = process.env.VERCEL ? "/tmp/pglite" : "./.pglite";
+  const dir = "./.pglite";
   const g = globalThis as unknown as { __pglite?: InstanceType<typeof PGlite> };
   g.__pglite ??= new PGlite(dir);
   const pg = g.__pglite;

@@ -10,24 +10,37 @@ export default function Simulator({ live, number }: { live: boolean; number: str
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
-  const end = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetch("/api/sim").then((r) => r.json()).then((d) => setMsgs(d.messages ?? [])).catch(() => {});
   }, []);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [msgs]);
+  useEffect(() => {
+    const el = box.current;
+    if (el) el.scrollTop = el.scrollHeight; // scroll the thread, never the page
+  }, [msgs, busy]);
 
   async function send(body: string) {
     if (!body.trim() || busy) return;
     setMsgs((m) => [...m, { direction: "in", body }]);
     setText("");
     setBusy(true);
-    const res = await fetch("/api/sim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body }) });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (data.reply) setMsgs((m) => [...m, { direction: "out", body: data.reply }]);
-    router.refresh();
+    try {
+      const res = await fetch("/api/sim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body }) });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        window.location.href = "/#start";
+        return;
+      }
+      if (!res.ok) throw new Error();
+      if (data.reply) setMsgs((m) => [...m, { direction: "out", body: data.reply }]);
+      router.refresh();
+    } catch {
+      setMsgs((m) => [...m, { direction: "out", body: "Couldn't send that. Check your connection and try again." }]);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -36,7 +49,7 @@ export default function Simulator({ live, number }: { live: boolean; number: str
         <p className="display text-lg">Text it</p>
         <p className="type text-xs text-ink-2">{live && number ? `or text ${number}` : "simulator · real SMS soon"}</p>
       </div>
-      <div className="h-[46dvh] min-h-72 space-y-3 overflow-y-auto p-4 text-[15px] leading-snug" aria-live="polite">
+      <div ref={box} className="h-[46dvh] min-h-72 space-y-3 overflow-y-auto p-4 text-[15px] leading-snug" aria-live="polite">
         {msgs.length === 0 && (
           <p className="type text-sm text-ink-2">Didn&apos;t buy something today? Type it with the price. Try: croissant 5</p>
         )}
@@ -48,7 +61,6 @@ export default function Simulator({ live, number }: { live: boolean; number: str
           ),
         )}
         {busy && <div className="type w-fit border-2 border-dashed border-ink px-3 py-2 text-sm">printing receipt…</div>}
-        <div ref={end} />
       </div>
       <div className="flex flex-wrap gap-2 border-t-2 border-dashed border-ink px-4 py-2">
         {SUGGEST.map((s) => (
@@ -60,7 +72,7 @@ export default function Simulator({ live, number }: { live: boolean; number: str
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="what didn't you buy?"
-          className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base focus:bg-[rgba(0,0,0,0.04)] focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-[-3px]"
           aria-label="Message"
         />
         <button className="display border-l-2 border-ink bg-hot px-5 text-hot-ink" disabled={busy}>Send</button>

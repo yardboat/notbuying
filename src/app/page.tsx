@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { currentUserId } from "@/lib/session";
+import { demoMode } from "@/lib/env";
 import Signup from "./signup";
 import Reveal from "./reveal";
 
@@ -110,7 +111,7 @@ export default async function Home() {
           <p className="type text-sm text-ink-2">05 · your one thing</p>
           <h2 className="display mt-4 text-5xl sm:text-6xl">What are you saying yes to?</h2>
           <div className="mt-10">
-            <Signup signedIn={signedIn} />
+            <Signup signedIn={signedIn} demo={demoMode()} />
           </div>
         </div>
       </section>

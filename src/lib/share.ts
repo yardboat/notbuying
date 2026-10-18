@@ -7,7 +7,10 @@ import { env } from "./env";
 // replayed as a session token. No expiry: an issue is a printed thing.
 
 function secret() {
-  return env("SESSION_SECRET") ?? "dev-only-secret-change-me";
+  const v = env("SESSION_SECRET");
+  if (v && v.length >= 32) return v;
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") throw new Error("SESSION_SECRET missing or too short.");
+  return "dev-only-secret-local-machine-only-000";
 }
 
 function sign(payload: string) {

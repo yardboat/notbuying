@@ -4,12 +4,14 @@ import { appUrl, demoMode, env } from "@/lib/env";
 import { issueNumber, weekRecap, type User } from "@/lib/ledger";
 import { usd, weekStartET } from "@/lib/money";
 import { sendSms } from "@/lib/sms";
+import { makeToken } from "@/lib/session";
 
 export const runtime = "nodejs";
 
 // Sunday issue drop. Vercel Cron calls this with Authorization: Bearer CRON_SECRET.
 export async function GET(req: NextRequest) {
-  if (req.headers.get("authorization") !== `Bearer ${env("CRON_SECRET")}`) {
+  const secret = env("CRON_SECRET");
+  if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
     return new Response("unauthorized", { status: 401 });
   }
   const q = await db();
@@ -23,7 +25,7 @@ export async function GET(req: NextRequest) {
     const r = await weekRecap(uid, week);
     const n = await issueNumber(u, week);
     const body = r.count
-      ? `Issue ${String(n).padStart(2, "0")} is out. This week you said no ${r.count} time${r.count === 1 ? "" : "s"}: ${usd(r.skipped)} not spent, ${usd(r.pledged, { always2: true })} pledged. See it + send the donations: ${appUrl()}/issue/${week}`
+      ? `Issue ${String(n).padStart(2, "0")} is out. This week you said no ${r.count} time${r.count === 1 ? "" : "s"}: ${usd(r.skipped)} not spent, ${usd(r.pledged, { always2: true })} pledged. See it + send the donations: ${appUrl()}/in/${makeToken(uid, 60 * 60 * 24 * 7)}?next=/issue/${week}`
       : `Issue ${String(n).padStart(2, "0")}: a quiet week. Nothing logged. Next time you walk past something, text it: coffee 5`;
     if (!demoMode()) {
       const res = await sendSms(u.phone, body);

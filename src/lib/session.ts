@@ -7,7 +7,10 @@ const COOKIE = "nb_session";
 const MAX_AGE = 60 * 60 * 24 * 30;
 
 function secret() {
-  return env("SESSION_SECRET") ?? "dev-only-secret-change-me";
+  const s = env("SESSION_SECRET");
+  if (s && s.length >= 32) return s;
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") throw new Error("SESSION_SECRET missing or too short.");
+  return "dev-only-secret-local-machine-only-000";
 }
 
 function sign(payload: string) {

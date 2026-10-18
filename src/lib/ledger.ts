@@ -6,8 +6,9 @@ import { categorizeFast, parseFast, type Parsed } from "./parse";
 import { categorizeWithLlm, parseWithLlm } from "./llm";
 import { addDays, pct, pledgeFor, usd, weekStartET } from "./money";
 import { makeToken } from "./session";
+import { BAD_PRICE, CHITCHAT, NO_GOAL_HINT, bigPriceCancelled, bigPriceConfirm, newGoalReply } from "./copy";
 
-export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; created_at: string };
+export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; pending_confirm?: string | null; created_at: string };
 export type Goal = { id: number; label: string; target_cents: number; reached_at: string | null };
 export type Skip = {
   id: number; item: string; price_cents: number; category: Category; charity: string; pledge_cents: number;
@@ -128,7 +129,7 @@ export async function createUser(phone: string, goalLabel: string, goalCents: nu
     const [u] = await q<{ id: number }>("INSERT INTO users (phone, name, consent_at) VALUES ($1, $2, now()) RETURNING id", [phone, name ?? null]);
     id = Number(u.id);
   }
-  if (goalLabel && goalCents > 0) await setGoal(id, goalLabel, goalCents);
+  if (goalLabel && goalCents > 0 && !(await activeGoal(id))) await setGoal(id, goalLabel, goalCents);
   return id;
 }
 
@@ -144,9 +145,9 @@ export async function setGoal(userId: number, rawLabel: string, cents: number) {
   await q("INSERT INTO goals (user_id, label, target_cents) VALUES ($1, $2, $3)", [userId, label, cents]);
 }
 
-async function log(userId: number | null, direction: "in" | "out", channel: string, body: string, intent?: string) {
+async function log(userId: number | null, direction: "in" | "out", channel: string, body: string, intent?: string, sid: string | null = null) {
   const q = await db();
-  await q("INSERT INTO messages (user_id, direction, channel, body, intent) VALUES ($1,$2,$3,$4,$5)", [userId, direction, channel, body, intent ?? null]);
+  await q("INSERT INTO messages (user_id, direction, channel, body, intent, sid) VALUES ($1,$2,$3,$4,$5,$6)", [userId, direction, channel, body, intent ?? null, sid]);
 }
 
 async function categorize(item: string, hint: Category | null): Promise<Category> {
@@ -182,7 +183,12 @@ export async function dashboardLink(userId: number) {
 export async function handleMessage(opts: { user: User; body: string; channel: "sms" | "sim"; sid?: string | null }): Promise<string | null> {
   const { user, body, channel } = opts;
   const uid = Number(user.id);
-  await log(uid, "in", channel, body);
+  if (opts.sid) {
+    const q = await db();
+    const seen = await q("SELECT 1 FROM messages WHERE sid = $1", [opts.sid]);
+    if (seen.length) return null; // Twilio retry
+  }
+  await log(uid, "in", channel, body, undefined, opts.sid ?? null);
 
   let parsed: Parsed | null = parseFast(body);
   let hint: Category | null = null;
@@ -200,6 +206,21 @@ export async function handleMessage(opts: { user: User; body: string; channel: "
 async function respond(user: User, p: Parsed, raw: string, sid: string | null, hint: Category | null): Promise<string | null> {
   const q = await db();
   const uid = Number(user.id);
+
+  // A big price is waiting for YES.
+  if (user.pending_confirm) {
+    await q("UPDATE users SET pending_confirm = NULL WHERE id = $1", [uid]);
+    if (p.intent === "start") {
+      try {
+        const pc = JSON.parse(user.pending_confirm) as { item: string; cents: number };
+        return skipReply(user, pc.item, pc.cents, raw, sid, hint);
+      } catch {
+        /* fall through */
+      }
+    } else if (p.intent === "unknown") {
+      return bigPriceCancelled;
+    }
+  }
 
   switch (p.intent) {
     case "stop":
@@ -224,15 +245,20 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       );
       if (!last) return "Nothing to undo.";
       await q("UPDATE skips SET undone_at = now() WHERE id = $1", [last.id]);
+      const g = await activeGoal(uid);
+      if (g?.reached_at && (await goalSaved(Number(g.id))) < Number(g.target_cents)) await q("UPDATE goals SET reached_at = NULL WHERE id = $1", [g.id]);
       return `Undone: ${last.item} ${usd(Number(last.price_cents))}. If the price was off, text it again with the right one.`;
     }
     case "new_goal": {
-      if (!p.targetCents) return `What does ${p.label} cost? Text: new goal ${p.label} 500`;
+      if (!p.targetCents) return `What does ${cleanGoal(p.label)} cost? Text: new goal ${p.label} 500`;
       await setGoal(uid, p.label, p.targetCents);
-      return `New goal: ${cleanGoal(p.label)}, ${usd(p.targetCents)}. Every skip from here builds toward it.`;
+      return newGoalReply(cleanGoal(p.label), usd(p.targetCents));
     }
+    case "bad_price":
+      return BAD_PRICE;
     case "price_only": {
       if (!user.pending_item) return "Got a number, but for what? Text the item and price, like: croissant 5";
+      if (p.needsConfirm) return askConfirm(uid, user.pending_item, p.priceCents);
       return skipReply(user, user.pending_item, p.priceCents, raw, sid, hint);
     }
     case "skip": {
@@ -240,11 +266,18 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
         await q("UPDATE users SET pending_item = $2 WHERE id = $1", [uid, p.item]);
         return `Nice. What would the ${p.item} have cost? Just text the number.`;
       }
+      if (p.needsConfirm) return askConfirm(uid, p.item, p.priceCents);
       return skipReply(user, p.item, p.priceCents, raw, sid, hint);
     }
     default:
-      return "Didn't catch that. Text what you didn't buy + the price, like: croissant 5. Or: totals, undo, help.";
+      return CHITCHAT;
   }
+}
+
+async function askConfirm(uid: number, item: string, cents: number) {
+  const q = await db();
+  await q("UPDATE users SET pending_confirm = $2, pending_item = NULL WHERE id = $1", [uid, JSON.stringify({ item, cents })]);
+  return bigPriceConfirm(usd(cents));
 }
 
 async function skipReply(user: User, item: string, priceCents: number, raw: string, sid: string | null, hint: Category | null) {
@@ -253,7 +286,7 @@ async function skipReply(user: User, item: string, priceCents: number, raw: stri
   const charity = CHARITIES[r.charitySlug];
   const impact = impactLine(charity, r.pledge);
   const pledgeTxt = `${usd(r.pledge, { always2: true })} pledged to ${charity.name}${impact ? ` (${impact})` : ""}.`;
-  let goalTxt = "No goal set yet: text new goal bike 500.";
+  let goalTxt = `${NO_GOAL_HINT}.`;
   if (r.goal) {
     const saved = await goalSaved(Number(r.goal.id));
     const target = Number(r.goal.target_cents);

@@ -1,6 +1,8 @@
 // Category → charity map. Every.org slugs verified 2026-10-18.
 // Impact units only where the charity publishes one (sourced); otherwise dollars only.
 
+import { CHARITY_OPTIONS } from "./charity-options";
+
 export type Category = "food" | "transport" | "fashion" | "home" | "tech" | "fun" | "other";
 
 export type Charity = {
@@ -10,28 +12,25 @@ export type Charity = {
   impact?: { centsPerUnit: number; unit: string; source: string };
 };
 
-export const CHARITIES: Record<string, Charity> = {
-  feedingamerica: {
-    slug: "feedingamerica",
-    name: "Feeding America",
-    cause: "food access",
-    // "$1 helps provide at least 10 meals" — feedingamerica.org/ways-to-give/faq/about-our-claims
-    impact: { centsPerUnit: 10, unit: "meal", source: "https://www.feedingamerica.org/ways-to-give/faq/about-our-claims" },
-  },
-  "water-org": { slug: "water-org", name: "Water.org", cause: "safe water and sanitation, built with local partners" },
-  dressforsuccess: { slug: "dressforsuccess", name: "Dress for Success", cause: "career support for women" },
-  habitat: { slug: "habitat", name: "Habitat for Humanity", cause: "affordable housing" },
-  givedirectly: { slug: "givedirectly", name: "GiveDirectly", cause: "direct cash, no strings attached" },
-};
+const GIVEDIRECTLY: Charity = { slug: "givedirectly", name: "GiveDirectly", cause: "direct cash, no strings attached" };
 
+/** Every charity a skip can be pledged to: the 18 picks plus GiveDirectly for "other". */
+export const CHARITIES: Record<string, Charity> = Object.fromEntries([
+  ...Object.values(CHARITY_OPTIONS)
+    .flat()
+    .map((o) => [o.slug, { slug: o.slug, name: o.name, cause: o.cause, ...(o.impact ? { impact: o.impact } : {}) } as Charity]),
+  [GIVEDIRECTLY.slug, GIVEDIRECTLY],
+]);
+
+/** Defaults (the obvious pick) used until a user picks their own. */
 export const CATEGORY_CHARITY: Record<Category, string> = {
-  food: "feedingamerica",
-  transport: "water-org",
-  fashion: "dressforsuccess",
-  home: "habitat",
-  tech: "givedirectly",
-  fun: "givedirectly",
-  other: "givedirectly",
+  food: CHARITY_OPTIONS.food[0].slug,
+  transport: CHARITY_OPTIONS.transport[0].slug,
+  fashion: CHARITY_OPTIONS.fashion[0].slug,
+  home: CHARITY_OPTIONS.home[0].slug,
+  tech: CHARITY_OPTIONS.tech[0].slug,
+  fun: CHARITY_OPTIONS.fun[0].slug,
+  other: GIVEDIRECTLY.slug,
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {

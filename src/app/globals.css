@@ -416,3 +416,28 @@ h1:has(+ .gm-has-ransom) {
 @media (prefers-reduced-motion: reduce) {
   .hero-cut, .hero-no, .rn-paste, .gm-stub.is-on, .gm-stub.is-on::before, .reveal .slap { animation-delay: 0ms !important; }
 }
+
+/* ---- Charity picker ballot ---- */
+.pick-card {
+  transform: rotate(var(--tilt, 0deg));
+  border: 2px solid transparent;
+}
+.pick-card:hover {
+  transform: rotate(var(--tilt, 0deg)) translateY(-3px);
+}
+.pick-card.is-on {
+  border-color: var(--ink);
+  box-shadow: 6px 6px 0 var(--hot);
+  transform: rotate(0deg);
+}
+.pick-card:focus-within {
+  outline: 3px solid var(--hot-deep, var(--ink));
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pick-card,
+  .pick-card:hover,
+  .pick-card.is-on {
+    transform: none;
+  }
+}

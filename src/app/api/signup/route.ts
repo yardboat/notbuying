@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       id = await createUser(phone, goalLabel, goalCents, name);
     }
     await setSession(id);
-    return NextResponse.json({ ok: true, next: "/dashboard?welcome=1" });
+    return NextResponse.json({ ok: true, next: b.mode === "login" ? "/dashboard" : "/setup/charities?onboarding=1" });
   }
 
   // Live mode: text a 6-digit code.

@@ -3,6 +3,7 @@ import { db } from "./db";
 import { appUrl } from "./env";
 import { CATEGORY_CHARITY, CHARITIES, charityFor, impactLine, type Category } from "./charities";
 import { categorizeFast, parseFast, type Parsed } from "./parse";
+import { PICK_CATEGORIES, isValidPick, type PickCategory } from "./charity-options";
 import { categorizeWithLlm, parseWithLlm } from "./llm";
 import { addDays, pct, pledgeFor, usd, weekStartET } from "./money";
 import { makeToken } from "./session";
@@ -116,6 +117,33 @@ export async function weekRecap(userId: number, weekStart: string) {
   };
 }
 
+// ---------- charity picks ----------
+
+export async function charityPicks(userId: number): Promise<Partial<Record<PickCategory, string>>> {
+  const q = await db();
+  const rows = await q<{ category: PickCategory; slug: string }>("SELECT category, slug FROM user_charities WHERE user_id = $1", [userId]);
+  return Object.fromEntries(rows.filter((r) => isValidPick(r.category, r.slug)).map((r) => [r.category, r.slug]));
+}
+
+export async function charityChoice(userId: number, category: Category): Promise<string> {
+  if (category === "other") return CATEGORY_CHARITY.other;
+  const picks = await charityPicks(userId);
+  return picks[category] ?? CATEGORY_CHARITY[category];
+}
+
+export async function saveCharityPicks(userId: number, picks: Partial<Record<PickCategory, string>>) {
+  const q = await db();
+  for (const cat of PICK_CATEGORIES) {
+    const slug = picks[cat];
+    if (!slug || !isValidPick(cat, slug)) continue;
+    await q(
+      `INSERT INTO user_charities (user_id, category, slug) VALUES ($1,$2,$3)
+       ON CONFLICT (user_id, category) DO UPDATE SET slug = EXCLUDED.slug, updated_at = now()`,
+      [userId, cat, slug],
+    );
+  }
+}
+
 // ---------- writes ----------
 
 export async function createUser(phone: string, goalLabel: string, goalCents: number, name?: string | null) {
@@ -157,7 +185,7 @@ async function categorize(item: string, hint: Category | null): Promise<Category
 async function recordSkip(user: User, item: string, priceCents: number, raw: string, sid: string | null, hint: Category | null) {
   const q = await db();
   const category = await categorize(item, hint);
-  const charitySlug = CATEGORY_CHARITY[category];
+  const charitySlug = await charityChoice(Number(user.id), category);
   const pledge = pledgeFor(priceCents);
   const goal = await activeGoal(Number(user.id));
   if (sid) {
@@ -297,7 +325,7 @@ async function skipReply(user: User, item: string, priceCents: number, raw: stri
     }
     goalTxt = `${r.goal.label}: ${usd(saved)} of ${usd(target)} (${pct(saved, target)}%).`;
   }
-  return `No ${item}. +${usd(priceCents)}. ${goalTxt} ${pledgeTxt} ${mouth(Number(user.id) + priceCents)}`;
+  return `No ${item}. +${usd(priceCents)}. ${goalTxt} ${pledgeTxt} ${mouth(Math.floor(Date.now() / 1000) + item.length)}`;
 }
 
 export { charityFor };

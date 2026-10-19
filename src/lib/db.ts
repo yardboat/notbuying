@@ -75,6 +75,13 @@ CREATE TABLE IF NOT EXISTS settle_ups (
   confirmed_at TIMESTAMPTZ
 );
 ALTER TABLE auth_codes ADD COLUMN IF NOT EXISTS sent_at TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS user_charities (
+  user_id BIGINT NOT NULL REFERENCES users(id),
+  category TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, category)
+);
 CREATE TABLE IF NOT EXISTS weekly_sends (
   user_id BIGINT NOT NULL,
   week_start DATE NOT NULL,

@@ -32,5 +32,5 @@ export async function POST(req: NextRequest) {
     id = await createUser(phone, String(b.goalLabel ?? "").slice(0, 60), toCents(String(b.goalAmount ?? "")) ?? 0, b.name || null);
   }
   await setSession(id);
-  return NextResponse.json({ ok: true, next: "/dashboard?welcome=1" });
+  return NextResponse.json({ ok: true, next: b.mode === "login" ? "/dashboard" : "/setup/charities?onboarding=1" });
 }

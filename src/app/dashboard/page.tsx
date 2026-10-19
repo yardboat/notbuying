@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CHARITIES, CATEGORY_LABEL, impactLine } from "@/lib/charities";
 import { demoMode, env } from "@/lib/env";
-import { issueNumber, summary, userById } from "@/lib/ledger";
+import { charityPicks, issueNumber, summary, userById } from "@/lib/ledger";
+import { CHARITY_OPTIONS, PICK_CATEGORIES } from "@/lib/charity-options";
+import { DASHBOARD_LINK_LABEL, SAVED_TOAST, TAG_LABELS } from "@/lib/copy-charities";
 import { isSundayET, usd, weekStartET } from "@/lib/money";
 import { currentUserId } from "@/lib/session";
 import { prettyPhone } from "@/lib/sms";
@@ -12,13 +14,14 @@ import GoalMeter from "./goal-meter";
 
 export const dynamic = "force-dynamic";
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string; picked?: string }> }) {
   const uid = await currentUserId();
   if (!uid) redirect("/#start");
   const user = await userById(uid);
   if (!user) redirect("/#start");
   const s = await summary(uid);
-  const { welcome } = await searchParams;
+  const { welcome, picked } = await searchParams;
+  const picks = await charityPicks(uid);
   const week = weekStartET();
   const issue = await issueNumber(user, week);
   const sunday = isSundayET();
@@ -44,6 +47,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </p>
         </div>
       )}
+
+      {picked && !welcome && <p className="print-in mb-8 border-2 border-ink p-3 text-sm">{SAVED_TOAST}</p>}
 
       <section className="grid gap-10 md:grid-cols-[1.25fr_1fr]">
         <div>
@@ -74,6 +79,26 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             ) : (
               <p className="mt-3 text-sm text-ink-2">Your weekly recap card prints on Sunday. Keep saying no.</p>
             )}
+          </div>
+
+          <div className="mt-12">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 className="display text-2xl">Your charities</h2>
+              <Link href="/setup/charities" className="text-sm underline decoration-2 underline-offset-4">{DASHBOARD_LINK_LABEL}</Link>
+            </div>
+            <ul className="mt-4 divide-y-2 divide-dashed divide-ink border-y-2 border-ink text-sm">
+              {PICK_CATEGORIES.map((cat) => {
+                const o = CHARITY_OPTIONS[cat].find((x) => x.slug === picks[cat]) ?? CHARITY_OPTIONS[cat][0];
+                return (
+                  <li key={cat} className="flex items-baseline justify-between gap-3 py-2">
+                    <span className="text-ink-2">{CATEGORY_LABEL[cat]}</span>
+                    <span className="text-right">
+                      <span className="font-bold">{o.name}</span> <span className="type text-xs text-ink-2">· {TAG_LABELS[o.tag].replace(/^The /, "").toLowerCase()}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
 
           <div id="send" className="mt-12 scroll-mt-6">

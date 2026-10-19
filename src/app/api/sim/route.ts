@@ -11,8 +11,8 @@ export async function GET() {
   const uid = await currentUserId();
   if (!uid) return NextResponse.json({ error: "signin" }, { status: 401 });
   const q = await db();
-  const rows = await q<{ direction: string; body: string; created_at: string }>(
-    "SELECT direction, body, created_at FROM messages WHERE user_id = $1 ORDER BY id DESC LIMIT 60",
+  const rows = await q<{ direction: string; body: string; created_at: string; media_url: string | null }>(
+    "SELECT direction, body, created_at, media_url FROM messages WHERE user_id = $1 ORDER BY id DESC LIMIT 60",
     [uid],
   );
   return NextResponse.json({ messages: rows.reverse() });

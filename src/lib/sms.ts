@@ -16,7 +16,7 @@ export function prettyPhone(e164: string) {
 
 export const twilioConfigured = () => Boolean(env("TWILIO_ACCOUNT_SID") && env("TWILIO_AUTH_TOKEN") && env("TWILIO_PHONE_NUMBER"));
 
-export async function sendSms(to: string, body: string): Promise<{ ok: boolean; error?: string }> {
+export async function sendSms(to: string, body: string, mediaUrl?: string): Promise<{ ok: boolean; error?: string }> {
   const sid = env("TWILIO_ACCOUNT_SID");
   const token = env("TWILIO_AUTH_TOKEN");
   const from = env("TWILIO_PHONE_NUMBER");
@@ -27,7 +27,7 @@ export async function sendSms(to: string, body: string): Promise<{ ok: boolean; 
       Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({ To: to, From: from, Body: body }),
+    body: new URLSearchParams({ To: to, From: from, Body: body, ...(mediaUrl ? { MediaUrl: mediaUrl } : {}) }),
   });
   if (!res.ok) return { ok: false, error: `twilio_${res.status}` };
   return { ok: true };

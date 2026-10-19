@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Msg = { direction: "in" | "out"; body: string };
+type Msg = { direction: "in" | "out"; body: string; media_url?: string | null };
 
 const SUGGEST = ["croissant 5", "uber 18", "new sneakers 120", "totals", "undo"];
 
@@ -57,7 +57,13 @@ export default function Simulator({ live, number }: { live: boolean; number: str
           m.direction === "in" ? (
             <div key={i} className="ml-auto w-fit max-w-[80%] bg-ink px-3 py-2 text-paper">{m.body}</div>
           ) : (
-            <div key={i} className="print-in w-fit max-w-[90%] border-2 border-ink px-3 py-2">{m.body}</div>
+            <div key={i} className="print-in w-fit max-w-[90%]">
+              {m.media_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={m.media_url.replace(/^https?:\/\/[^/]+/, "")} alt="Your weekly issue card" className="mb-1 block w-56 border-2 border-ink" loading="lazy" />
+              )}
+              <div className="border-2 border-ink px-3 py-2">{m.body}</div>
+            </div>
           ),
         )}
         {busy && <div className="type w-fit border-2 border-dashed border-ink px-3 py-2 text-sm">printing receipt…</div>}

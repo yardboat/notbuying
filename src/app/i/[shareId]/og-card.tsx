@@ -91,7 +91,7 @@ function Masthead({ d, scale }: { d: PublicIssue; scale: number }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "column", ...type, fontSize: s(22) }}>
-        <span>Donate the Difference</span>
+        <span>Not Buying</span>
         <span style={{ color: T.ink2 }}>{d.range}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -164,8 +164,8 @@ export async function notFoundImage(w: number, h: number) {
   return new ImageResponse(
     (
       <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: T.paper, ...halftone, color: T.ink, alignItems: "center", justifyContent: "center" }}>
-        <div style={{ ...display, fontSize: 120 }}>Donate the</div>
-        <div style={{ ...display, fontSize: 120, background: T.hotDeep, color: T.hotDeepInk, padding: "0 24px" }}>Difference</div>
+        <div style={{ ...display, fontSize: 120 }}>Not</div>
+        <div style={{ ...display, fontSize: 120, background: T.hotDeep, color: T.hotDeepInk, padding: "0 24px" }}>Buying</div>
         <div style={{ ...type, fontSize: 34, marginTop: 30 }}>Every no is a yes to something.</div>
       </div>
     ),

@@ -43,7 +43,7 @@ export default async function Issue({ params }: { params: Promise<{ week: string
       <article className="receipt print-in relative mt-6 overflow-hidden p-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="type text-xs">Donate the Difference</p>
+            <p className="type text-xs">Not Buying</p>
             <p className="type text-xs text-ink-2">{prettyDate(week)} – {prettyDate(addDays(week, 6))}</p>
           </div>
           <p className="display text-right text-5xl leading-none">

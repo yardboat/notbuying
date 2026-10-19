@@ -10,7 +10,7 @@ export default async function Home() {
   return (
     <main className="overflow-x-hidden">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 text-xs uppercase tracking-[0.18em] sm:px-6">
-        <span className="type text-sm normal-case tracking-normal">Donate the Difference</span>
+        <span className="type text-sm normal-case tracking-normal">Not Buying</span>
         {signedIn ? (
           <Link href="/dashboard" className="underline decoration-2 underline-offset-4">Your dashboard →</Link>
         ) : (

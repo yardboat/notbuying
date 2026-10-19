@@ -31,7 +31,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6">
       <header className="flex items-center justify-between py-4 text-xs uppercase tracking-[0.18em]">
-        <Link href="/" className="type text-sm normal-case tracking-normal">Donate the Difference</Link>
+        <Link href="/" className="type text-sm normal-case tracking-normal">Not Buying</Link>
         <form action="/api/logout" method="post">
           <button className="underline decoration-2 underline-offset-4">Sign out</button>
         </form>

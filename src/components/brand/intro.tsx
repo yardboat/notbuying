@@ -134,10 +134,8 @@ export default function LandingIntro() {
 
   useEffect(() => {
     const html = document.documentElement;
-    if (html.getAttribute("data-intro") !== "play") {
-      setMounted(false);
-      return;
-    }
+    // not opted in (reduced motion, repeat visit, failsafe fired): CSS keeps the overlay display:none
+    if (html.getAttribute("data-intro") !== "play") return;
     (window as unknown as { __nbIntro?: boolean }).__nbIntro = true;
     const el = root.current!;
     const q = <E extends Element>(s: string) => el.querySelector<E>(s)!;

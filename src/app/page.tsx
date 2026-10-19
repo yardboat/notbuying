@@ -3,14 +3,22 @@ import { currentUserId } from "@/lib/session";
 import { demoMode } from "@/lib/env";
 import Signup from "./signup";
 import Reveal from "./reveal";
+import { LogoLockup } from "@/components/brand/logo";
+import LandingIntro from "@/components/brand/intro";
+import { INTRO_BOOT } from "@/components/brand/intro-boot";
 
 export default async function Home() {
   const signedIn = Boolean(await currentUserId());
 
   return (
     <main className="overflow-x-hidden">
+      {/* Decides before first paint whether the intro plays; without it the SSR hero stands. */}
+      <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
+      <LandingIntro />
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 text-xs uppercase tracking-[0.18em] sm:px-6">
-        <span className="type text-sm normal-case tracking-normal">Not Buying</span>
+        <Link href="/" aria-label="Not Buying, home" className="-my-1 block">
+          <LogoLockup className="block h-9 w-auto sm:h-10" title="Not Buying" />
+        </Link>
         {signedIn ? (
           <Link href="/dashboard" className="underline decoration-2 underline-offset-4">Your dashboard →</Link>
         ) : (
@@ -23,8 +31,10 @@ export default async function Home() {
         <p className="type mb-6 text-sm text-ink-2">Issue 00 · a manifesto in five cuts</p>
         <h1 className="display text-[clamp(2.5rem,calc(14vw-5px),8.5rem)]">
           <span className="hero-cut block" style={{ ["--cut-d" as string]: "0ms", ["--cut-r" as string]: "-2deg" }}>Every</span>
-          <span className="hero-cut block" style={{ ["--cut-d" as string]: "90ms", ["--cut-r" as string]: "1.5deg" }}>
-            <span className="cutout-hot hero-no">no</span> is a
+          {/* NO sits outside its line's cut so the intro's dot can land on it and become it. */}
+          <span className="block">
+            <span className="cutout-hot hero-no">no</span>{" "}
+            <span className="hero-cut inline-block" style={{ ["--cut-d" as string]: "90ms", ["--cut-r" as string]: "1.5deg" }}>is a</span>
           </span>
           <span className="hero-cut block" style={{ ["--cut-d" as string]: "180ms", ["--cut-r" as string]: "-1deg" }}>yes to</span>
           <span className="hero-cut block" style={{ ["--cut-d" as string]: "270ms", ["--cut-r" as string]: "2deg" }}>something.</span>

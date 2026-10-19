@@ -446,3 +446,66 @@ h1:has(+ .gm-has-ransom) {
   scroll-margin-bottom: 160px;
   scroll-margin-top: 24px;
 }
+
+/* ───────────────────────── brand intro + paper (craft-engineer, t/landing-intro) ───────────────────────── */
+/* Paper: a very light photographed tooth under the grain. Tile is pre-tinted to --paper and only
+   varies -2%..+1% in lightness, so every text contrast pair in design/system.md still holds. */
+body {
+  background-color: var(--paper);
+  background-image: url("/brand/paper-tile.jpg");
+  background-image: image-set(url("/brand/paper-tile.webp") type("image/webp"), url("/brand/paper-tile.jpg") type("image/jpeg"));
+  background-size: 876px auto;
+}
+
+/* Intro overlay: SSR'd but display:none unless the inline boot script opted in. */
+.nb-intro { display: none; }
+html[data-intro="play"] .nb-intro,
+html[data-intro="resolve"] .nb-intro {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 45; /* under the photocopy grain (50) so the grain sits on the intro too */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+html[data-intro="resolve"] .nb-intro { pointer-events: none; }
+.nb-intro-paper {
+  position: absolute;
+  inset: 0;
+  background-color: var(--paper);
+  background-image: url("/brand/paper-tile.jpg");
+  background-image: image-set(url("/brand/paper-tile.webp") type("image/webp"), url("/brand/paper-tile.jpg") type("image/jpeg"));
+  background-size: 876px auto;
+}
+.nb-intro-svg {
+  position: relative;
+  width: min(84vw, 560px);
+  height: auto;
+  overflow: visible;
+  margin-top: -4vh;
+}
+.nb-intro-morph {
+  display: none;
+  position: fixed;
+  background: var(--hot);
+  pointer-events: none;
+}
+
+/* Hero under the intro: lines stay painted (LCP is not held hostage), NO waits for the dot. */
+html[data-intro="play"] .hero-no,
+html[data-intro="resolve"] .hero-no { opacity: 0; animation: none; }
+html[data-intro="done"] .hero-no { animation: none; opacity: 1; }
+/* On resolve the lines re-cut in, stepped at 15fps to match the intro (7 frames ≈ 467ms). */
+@keyframes cut-in-step {
+  from { transform: translateY(0.35em) rotate(var(--cut-r, -2deg)); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+html[data-intro="resolve"] .hero-cut,
+html[data-intro="done"] .hero-cut {
+  animation: cut-in-step 467ms steps(7, end) var(--cut-d, 0ms) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-intro { display: none !important; }
+  html[data-intro] .hero-no { opacity: 1 !important; }
+}

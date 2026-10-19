@@ -76,7 +76,7 @@ export default async function Home() {
                 <li><span className="font-bold">1.</span> Pick one thing you actually want. A bike. A trip. A guitar.</li>
                 <li><span className="font-bold">2.</span> Every time you skip something, text it with the price.</li>
                 <li><span className="font-bold">3.</span> The full amount counts toward your thing. <span className="bg-hot px-1 text-hot-ink">10% gets pledged</span> to a charity matched to what you skipped.</li>
-                <li><span className="font-bold">4.</span> Sunday, your issue drops. One tap sends the week&apos;s donations.</li>
+                <li><span className="font-bold">4.</span> Sunday, your issue drops. One tap and the week&apos;s pledges go out.</li>
               </ol>
             </div>
             <PhoneDemo />
@@ -97,11 +97,11 @@ export default async function Home() {
             <div className="bg-paper p-6">
               <p className="type text-sm text-ink-2">yes to someone else</p>
               <p className="display mt-3 text-4xl">$0.50 to food access</p>
-              <p className="mt-3 text-ink-2">Croissant → Feeding America. Rideshare → Water.org. Sneakers → Dress for Success.</p>
+              <p className="mt-3 text-ink-2">Croissant, Feeding America. Rideshare, Water.org. Sneakers, Dress for Success.</p>
             </div>
           </div>
           <p className="mt-8 max-w-xl text-sm leading-relaxed text-ink-2">
-            We never touch your money. Pledges add up in your ledger; on Sunday you donate them yourself through Every.org, a nonprofit giving platform.
+            We never touch your money. Pledges stack up in your ledger. On Sunday you give them yourself through Every.org.
           </p>
         </section>
       </Reveal>

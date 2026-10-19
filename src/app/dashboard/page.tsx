@@ -61,7 +61,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="mt-10 grid grid-cols-3 gap-px border-2 border-ink bg-ink text-center">
             <Stat label="this week" value={String(s.thisWeek.count)} sub={`skip${s.thisWeek.count === 1 ? "" : "s"}`} />
             <Stat label="not spent" value={usd(s.lifetime.skipped)} sub="all time" />
-            <Stat label="pledged" value={usd(s.lifetime.pledged, { always2: true })} sub={`${usd(s.lifetime.donated, { always2: true })} sent`} />
+            <Stat label="pledged" value={usd(s.lifetime.pledged, { always2: true })} sub={`${usd(s.lifetime.donated, { always2: true })} given`} />
           </div>
 
           <div className="mt-10">

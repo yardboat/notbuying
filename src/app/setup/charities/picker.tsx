@@ -9,6 +9,7 @@ const TILT = [-0.8, 0.5, -0.3];
 
 export default function Picker({ categories, initial, next, onboarding }: { categories: Cat[]; initial: Record<string, string>; next: string; onboarding: boolean }) {
   const [picks, setPicks] = useState<Record<string, string>>(initial);
+  const custom = categories.filter((c) => picks[c.key] && picks[c.key] !== c.options[0].slug).length;
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -89,17 +90,21 @@ export default function Picker({ categories, initial, next, onboarding }: { cate
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-ink bg-paper/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className="type text-sm text-ink-2" aria-live="polite">
-            {toast ?? `${touched.size} of ${categories.length} picked by you · the rest stay on the obvious one`}
+        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-6 sm:py-4">
+          <p className="type text-xs text-ink-2 sm:text-sm" aria-live="polite">
+            {toast ?? (
+              <>
+                {custom} of {categories.length} off the obvious pick<span className="hidden sm:inline"> · change any card, any time</span>
+              </>
+            )}
           </p>
           <div className="flex gap-3">
             {onboarding && (
-              <button onClick={() => save(true)} disabled={busy} className="flex-1 border-2 border-ink px-4 py-3 text-sm underline-offset-4 hover:underline sm:flex-none">
+              <button onClick={() => save(true)} disabled={busy} className="flex-1 border-2 border-ink px-3 py-2 text-xs underline-offset-4 hover:underline sm:flex-none sm:px-4 sm:py-3 sm:text-sm">
                 {SKIP_LABEL}
               </button>
             )}
-            <button onClick={() => save(false)} disabled={busy} className="btn btn-hot flex-1 sm:flex-none">
+            <button onClick={() => save(false)} disabled={busy} className="btn btn-hot flex-1 py-2 text-sm sm:flex-none sm:py-[0.95rem] sm:text-base">
               {busy ? "Locking in…" : SAVE_LABEL}
             </button>
           </div>

@@ -441,3 +441,8 @@ h1:has(+ .gm-has-ransom) {
     transform: none;
   }
 }
+/* Keep focused picker cards clear of the fixed save bar */
+.pick-card {
+  scroll-margin-bottom: 160px;
+  scroll-margin-top: 24px;
+}

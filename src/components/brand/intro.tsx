@@ -168,7 +168,7 @@ export default function LandingIntro() {
     };
 
     const draw = (f: number) => {
-      const seed = f % 3;
+      const seed = Math.floor(f / 2) % 3; // boil on twos: calmer
       for (const [k, { g, path }] of parts) {
         const p = k === "dot" ? dotPose(f) : inkPose(k, f);
         g.style.visibility = p.show === false ? "hidden" : "visible";

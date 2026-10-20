@@ -65,7 +65,7 @@ def noise_fn(seed, amp, freq):
 def r2(x, y, seed):
     h = math.sin(x * 12.9898 + y * 78.233 + seed * 37.719) * 43758.5453
     h2 = math.sin(x * 39.346 + y * 11.135 + seed * 83.155) * 24634.6345
-    return ((h - math.floor(h)) - 0.5) * 0.7, ((h2 - math.floor(h2)) - 0.5) * 0.7
+    return ((h - math.floor(h)) - 0.5) * 0.3, ((h2 - math.floor(h2)) - 0.5) * 0.3
 
 def fmt(v): return f'{v:.1f}'.rstrip('0').rstrip('.') if '.' in f'{v:.1f}' else f'{v:.1f}'
 
@@ -108,7 +108,7 @@ H = base2
 # ring mask radius: mid of O ring (outer ~ 0.37*s, counter ~0.2*s)
 ring_r = 0.29 * s1
 
-AMP, FREQ = 1.5, 0.045
+AMP, FREQ = 0.7, 0.045  # boil toned down (was 1.5)
 boil = {}
 for k, rec in glyphs.items():
     polys = flatten(rec, 7.0)

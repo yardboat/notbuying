@@ -25,7 +25,7 @@ _Updated 2026-10-18 (session 2)_
 
 ## 2026-10-22 TFV watch
 - TFV in review as "Donate the Difference"; site temporarily rebranded to match (see DECISIONS). On approval: revert 9c98a0c, set webhook, DEMO_MODE=false, real-phone test.
-- hello@notbuying.org forwarding added via Vercel DNS (Forward Email); awaiting Randall's test email.
+- hello@notbuying.org forwarding added via Vercel DNS (Forward Email); verified working 2026-10-22 (Randall received a test email).
 
 ## Next
 1. Apply docs/copy-proof.md; re-run QA-critic on merged build.

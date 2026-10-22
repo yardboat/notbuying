@@ -1,8 +1,9 @@
 import { publicIssue } from "./data";
 import { landscape, notFoundImage } from "./og-card";
+import { BRAND_NAME } from "@/lib/brand";
 
 export const runtime = "nodejs";
-export const alt = "A weekly issue of Not Buying: what someone didn't buy this week.";
+export const alt = `A weekly issue of ${BRAND_NAME}: what someone didn't buy this week.`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

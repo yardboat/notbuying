@@ -3,21 +3,17 @@ import { currentUserId } from "@/lib/session";
 import { demoMode } from "@/lib/env";
 import Signup from "./signup";
 import Reveal from "./reveal";
-import { LogoLockup } from "@/components/brand/logo";
-import LandingIntro from "@/components/brand/intro";
-import { INTRO_BOOT } from "@/components/brand/intro-boot";
+import { BRAND_NAME } from "@/lib/brand";
 
 export default async function Home() {
   const signedIn = Boolean(await currentUserId());
 
   return (
     <main className="overflow-x-hidden">
-      {/* Decides before first paint whether the intro plays; without it the SSR hero stands. */}
-      <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT }} />
-      <LandingIntro />
+      {/* TEMP (TFV): Not Buying logo + intro disabled while the brand is "Donate the Difference". See src/lib/brand.ts. */}
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 text-xs uppercase tracking-[0.18em] sm:px-6">
-        <Link href="/" aria-label="Not Buying, home" className="-my-1 block">
-          <LogoLockup className="block h-9 w-auto sm:h-10" title="Not Buying" />
+        <Link href="/" aria-label={`${BRAND_NAME}, home`} className="type text-sm normal-case tracking-normal">
+          {BRAND_NAME}
         </Link>
         {signedIn ? (
           <Link href="/dashboard" className="underline decoration-2 underline-offset-4">Your dashboard →</Link>

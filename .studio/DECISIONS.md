@@ -10,3 +10,5 @@
 | 6 | 2026-10-18 | "undo" added to text commands | User-typed prices will have typos | reversible | COO |
 | 7 | 2026-10-18 | Signature motion v1: goal as 20 receipt stubs punching in + count-up | Cheap, on-route; craft pass can push further | reversible | COO |
 | 8 | 2026-10-18 | Repo is yardboat/notbuying (public) — Randall created it | No secrets committed | locked | Randall |
+
+- 2026-10-22 [reversible] TFV brand match: Twilio toll-free verification was submitted as "Donate the Difference", so all reviewer-visible surfaces (homepage header, titles, OG/share cards, dashboard/issue headers) temporarily use that name via src/lib/brand.ts; Not Buying logo + landing intro disabled on `/`. Revert the commit after TFV approval (or re-submit under the new name).

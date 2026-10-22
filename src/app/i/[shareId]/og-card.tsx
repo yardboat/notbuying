@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { usd } from "@/lib/money";
 import type { PublicIssue } from "./data";
+import { BRAND_NAME } from "@/lib/brand";
 
 // Satori can't read CSS vars: these mirror design/tokens in globals.css.
 const T = {
@@ -91,7 +92,7 @@ function Masthead({ d, scale }: { d: PublicIssue; scale: number }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%" }}>
       <div style={{ display: "flex", flexDirection: "column", ...type, fontSize: s(22) }}>
-        <span>Not Buying</span>
+        <span>{BRAND_NAME}</span>
         <span style={{ color: T.ink2 }}>{d.range}</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>

@@ -23,6 +23,10 @@ _Updated 2026-10-18 (session 2)_
 - "Pick your charities" onboarding step: 3 picks per category (obvious/progressive/interesting), per-user pledge routing, dashboard block. Research: docs/charity-research.md.
 - Writer copy-proof applied. QA2 (independent): SHIP to testers; its two P1s (mobile focus under save bar, partial-save overwrite) fixed.
 
+## 2026-10-22 TFV watch
+- TFV in review as "Donate the Difference"; site temporarily rebranded to match (see DECISIONS). On approval: revert 9c98a0c, set webhook, DEMO_MODE=false, real-phone test.
+- hello@notbuying.org forwarding added via Vercel DNS (Forward Email); awaiting Randall's test email.
+
 ## Next
 1. Apply docs/copy-proof.md; re-run QA-critic on merged build.
 2. Twilio toll-free verification submitted 2026-10-18; on approval set webhook + DEMO_MODE=false.

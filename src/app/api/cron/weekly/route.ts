@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
   }
   const q = await db();
   const week = weekStartET();
-  const users = await q<User>("SELECT * FROM users WHERE status = 'active'");
+  // Only people who explicitly opted in to texts get the Sunday text.
+  const users = await q<User>("SELECT * FROM users WHERE status = 'active' AND sms_consent = true");
   let sent = 0;
   for (const u of users) {
     const uid = Number(u.id);

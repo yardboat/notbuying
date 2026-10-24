@@ -9,7 +9,7 @@ import { addDays, pct, pledgeFor, usd, weekStartET } from "./money";
 import { makeToken } from "./session";
 import { BAD_PRICE, CHITCHAT, NO_GOAL_HINT, bigPriceCancelled, bigPriceConfirm, newGoalReply } from "./copy";
 
-export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; pending_confirm?: string | null; created_at: string };
+export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; pending_confirm?: string | null; sms_consent?: boolean; pin_hash?: string | null; pin_attempts?: number; pin_locked_until?: string | null; created_at: string };
 export type Goal = { id: number; label: string; target_cents: number; reached_at: string | null };
 export type Skip = {
   id: number; item: string; price_cents: number; category: Category; charity: string; pledge_cents: number;
@@ -146,19 +146,37 @@ export async function saveCharityPicks(userId: number, picks: Partial<Record<Pic
 
 // ---------- writes ----------
 
-export async function createUser(phone: string, goalLabel: string, goalCents: number, name?: string | null) {
+export async function createUser(
+  phone: string,
+  goalLabel: string,
+  goalCents: number,
+  name?: string | null,
+  opts: { pinHash?: string | null; smsConsent?: boolean; consentText?: string | null } = {},
+) {
   const q = await db();
   const existing = await userByPhone(phone);
   let id: number;
   if (existing) {
     id = Number(existing.id);
-    await q("UPDATE users SET status = 'active', consent_at = now(), name = COALESCE($2, name) WHERE id = $1", [id, name ?? null]);
+    await q("UPDATE users SET status = 'active', name = COALESCE($2, name), pin_hash = COALESCE($3, pin_hash) WHERE id = $1", [id, name ?? null, opts.pinHash ?? null]);
   } else {
-    const [u] = await q<{ id: number }>("INSERT INTO users (phone, name, consent_at) VALUES ($1, $2, now()) RETURNING id", [phone, name ?? null]);
+    const [u] = await q<{ id: number }>("INSERT INTO users (phone, name, pin_hash) VALUES ($1, $2, $3) RETURNING id", [phone, name ?? null, opts.pinHash ?? null]);
     id = Number(u.id);
   }
+  if (opts.smsConsent) await recordSmsConsent(id, opts.consentText ?? null);
   if (goalLabel && goalCents > 0 && !(await activeGoal(id))) await setGoal(id, goalLabel, goalCents);
   return id;
+}
+
+/** Store an explicit SMS opt-in (timestamp + the exact wording the person agreed to). */
+export async function recordSmsConsent(userId: number, text: string | null) {
+  const q = await db();
+  await q("UPDATE users SET sms_consent = true, sms_consent_at = now(), consent_at = now(), sms_consent_text = $2, status = 'active' WHERE id = $1", [userId, text]);
+}
+
+export async function revokeSmsConsent(userId: number) {
+  const q = await db();
+  await q("UPDATE users SET sms_consent = false WHERE id = $1", [userId]);
 }
 
 export function cleanGoal(label: string) {
@@ -252,13 +270,13 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
 
   switch (p.intent) {
     case "stop":
-      await q("UPDATE users SET status = 'stopped' WHERE id = $1", [uid]);
+      await q("UPDATE users SET status = 'stopped', sms_consent = false WHERE id = $1", [uid]);
       return null; // Twilio handles the STOP confirmation for toll-free numbers
     case "start":
-      await q("UPDATE users SET status = 'active' WHERE id = $1", [uid]);
+      await q("UPDATE users SET status = 'active', sms_consent = true, sms_consent_at = now() WHERE id = $1", [uid]);
       return "You're back. Text what you didn't buy, like: croissant 5";
     case "help":
-      return "Donate the Difference: text what you skipped + price (croissant 5). Also: totals, undo, new goal bike 500, dashboard. Help: hello@notbuying.org. Msg&data rates may apply. STOP to opt out.";
+      return "Not Buying: text what you skipped + price (croissant 5). Also: totals, undo, new goal bike 500, dashboard. Help: hello@notbuying.org. Msg&data rates may apply. STOP to opt out.";
     case "dashboard":
       return `Your dashboard: ${await dashboardLink(uid)}`;
     case "totals": {

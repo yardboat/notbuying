@@ -127,10 +127,11 @@ export default async function Home() {
       </section>
 
       <footer className="mx-auto flex max-w-5xl flex-wrap gap-x-6 gap-y-2 px-4 py-10 text-xs text-ink-2 sm:px-6">
-        <span>© Yardboat LLC</span>
+        <span>Not Buying by Yardboat LLC · Atlanta, GA</span>
+        <a href="mailto:hello@notbuying.org" className="underline">hello@notbuying.org</a>
         <Link href="/sms" className="underline">SMS terms</Link>
-        <Link href="/legal/privacy" className="underline">Privacy</Link>
-        <Link href="/legal/terms" className="underline">Terms</Link>
+        <Link href="/privacy" className="underline">Privacy</Link>
+        <Link href="/terms" className="underline">Terms</Link>
       </footer>
     </main>
   );

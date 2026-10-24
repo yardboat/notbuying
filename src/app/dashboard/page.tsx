@@ -11,6 +11,7 @@ import { prettyPhone } from "@/lib/sms";
 import Simulator from "./simulator";
 import SettleButton from "./settle-button";
 import GoalMeter from "./goal-meter";
+import TextsToggle from "./texts-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -153,6 +154,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </ul>
         )}
       </section>
+
+      <TextsToggle on={Boolean(user.sms_consent)} />
     </main>
   );
 }

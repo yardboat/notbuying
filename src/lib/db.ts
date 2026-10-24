@@ -59,6 +59,13 @@ CREATE TABLE IF NOT EXISTS messages (
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS sid TEXT;
 CREATE INDEX IF NOT EXISTS messages_sid_idx ON messages(sid);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS pending_confirm TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS sms_consent BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS sms_consent_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS sms_consent_text TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_hash TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_attempts INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_locked_until TIMESTAMPTZ;
+UPDATE users SET sms_consent = true, sms_consent_at = consent_at WHERE consent_at IS NOT NULL AND sms_consent_at IS NULL AND status = 'active';
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_url TEXT;
 CREATE TABLE IF NOT EXISTS auth_codes (
   phone TEXT PRIMARY KEY,

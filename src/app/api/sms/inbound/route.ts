@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const user = await userByPhone(phone);
   if (!user) {
-    return xml(`Donate the Difference: you're not signed up yet. Start here: ${appUrl()}/ Reply STOP to opt out.`);
+    return xml(`Not Buying: you're not signed up yet. Start here: ${appUrl()}/ Reply STOP to opt out.`);
   }
   if (user.status === "stopped" && !/^(start|unstop|yes)$/i.test(body)) return xml(null);
 

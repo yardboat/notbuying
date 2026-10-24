@@ -6,10 +6,9 @@ import { CATEGORY_INTROS, PICK_INTRO, PICK_TITLE } from "@/lib/copy-charities";
 import { charityPicks } from "@/lib/ledger";
 import { currentUserId } from "@/lib/session";
 import Picker from "./picker";
-import { BRAND_NAME } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: `Pick your charities · ${BRAND_NAME}` };
+export const metadata = { title: "Pick your charities · Not Buying" };
 
 export default async function PickCharities({ searchParams }: { searchParams: Promise<{ onboarding?: string }> }) {
   const uid = await currentUserId();
@@ -22,7 +21,7 @@ export default async function PickCharities({ searchParams }: { searchParams: Pr
   return (
     <main className="mx-auto max-w-5xl px-4 pb-40 sm:px-6" style={{ scrollPaddingBottom: 160 }}>
       <header className="flex items-center justify-between py-4 text-xs uppercase tracking-[0.18em]">
-        <Link href="/" className="type text-sm normal-case tracking-normal">{BRAND_NAME}</Link>
+        <Link href="/" className="type text-sm normal-case tracking-normal">Not Buying</Link>
         {!onboarding && <Link href="/dashboard" className="underline decoration-2 underline-offset-4">Dashboard</Link>}
       </header>
 

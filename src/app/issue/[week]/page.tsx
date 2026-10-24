@@ -5,7 +5,6 @@ import { activeGoal, goalSaved, issueNumber, userById, weekRecap } from "@/lib/l
 import { addDays, isSundayET, pct, prettyDate, usd, weekStartET } from "@/lib/money";
 import { currentUserId } from "@/lib/session";
 import { makeShareId } from "@/lib/share";
-import { BRAND_NAME } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +43,7 @@ export default async function Issue({ params }: { params: Promise<{ week: string
       <article className="receipt print-in relative mt-6 overflow-hidden p-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="type text-xs">{BRAND_NAME}</p>
+            <p className="type text-xs">Not Buying</p>
             <p className="type text-xs text-ink-2">{prettyDate(week)} – {prettyDate(addDays(week, 6))}</p>
           </div>
           <p className="display text-right text-5xl leading-none">

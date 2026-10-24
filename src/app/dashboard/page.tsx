@@ -11,7 +11,6 @@ import { prettyPhone } from "@/lib/sms";
 import Simulator from "./simulator";
 import SettleButton from "./settle-button";
 import GoalMeter from "./goal-meter";
-import { BRAND_NAME } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +31,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 sm:px-6">
       <header className="flex items-center justify-between py-4 text-xs uppercase tracking-[0.18em]">
-        <Link href="/" className="type text-sm normal-case tracking-normal">{BRAND_NAME}</Link>
+        <Link href="/" className="type text-sm normal-case tracking-normal">Not Buying</Link>
         <form action="/api/logout" method="post">
           <button className="underline decoration-2 underline-offset-4">Sign out</button>
         </form>

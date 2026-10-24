@@ -16,14 +16,12 @@ const plex = localFont({
 // Special Elite is decorative (labels, stamps): subset to Latin + punctuation, not preloaded.
 const elite = localFont({ src: "../fonts/special-elite-latin-400-normal.woff2", variable: "--font-special-elite", display: "swap", preload: false, fallback: ["Courier New", "monospace"] });
 
-import { BRAND_NAME } from "@/lib/brand";
-
 export const metadata: Metadata = {
-  title: BRAND_NAME,
+  title: "Not Buying",
   description: "Every no is a yes to something. Text what you didn't buy. Watch it build toward what you want, and send 10% to someone who needs it more.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   openGraph: {
-    title: BRAND_NAME,
+    title: "Not Buying",
     description: "Every no is a yes to something.",
     type: "website",
   },

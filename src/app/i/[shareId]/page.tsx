@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { usd } from "@/lib/money";
 import { publicIssue } from "./data";
-import { BRAND_NAME } from "@/lib/brand";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +10,7 @@ type P = { params: Promise<{ shareId: string }> };
 
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const d = await publicIssue((await params).shareId);
-  if (!d) return { title: BRAND_NAME, robots: { index: false } };
+  if (!d) return { title: "Not Buying", robots: { index: false } };
   const title = `${d.who} said no ${d.count} time${d.count === 1 ? "" : "s"} this week · Issue ${d.issue}`;
   const description = `${usd(d.kept)} kept. ${usd(d.pledged, { always2: true })} to give. Every no is a yes to something.`;
   return {
@@ -36,7 +35,7 @@ export default async function PublicIssuePage({ params }: P) {
       <article className="receipt print-in relative mt-6 overflow-hidden p-6">
         <div className="flex items-start justify-between">
           <div>
-            <p className="type text-xs">{BRAND_NAME}</p>
+            <p className="type text-xs">Not Buying</p>
             <p className="type text-xs text-ink-2">{d.range}</p>
           </div>
           <p className="display text-right text-5xl leading-none">

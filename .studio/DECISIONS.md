@@ -10,3 +10,6 @@
 | 6 | 2026-10-18 | "undo" added to text commands | User-typed prices will have typos | reversible | COO |
 | 7 | 2026-10-18 | Signature motion v1: goal as 20 receipt stubs punching in + count-up | Cheap, on-route; craft pass can push further | reversible | COO |
 | 8 | 2026-10-18 | Repo is yardboat/notbuying (public) — Randall created it | No secrets committed | locked | Randall |
+| 9 | 2026-10-24 | Resubmit TFV as Yardboat LLC, DBA "Not Buying", hello@notbuying.org; site stays Not Buying | Brand, domain and email must match (30445/30482) | locked | Randall |
+| 10 | 2026-10-24 | SMS consent optional + double opt-in; PIN sign-in replaces SMS login codes; invite gate removed | TFV 30513/30553/30509 | reversible | COO |
+| 11 | 2026-10-24 | Every regulated submission gets an independent compliance review before Randall submits | First-round rejection cost a week | locked | Randall |

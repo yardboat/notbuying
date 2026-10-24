@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { demoMode, env } from "@/lib/env";
+import { demoMode } from "@/lib/env";
 import { SMS_CONSENT_TEXT, SMS_CONSENT_VERSION } from "@/lib/consent";
 import { createUser, userByPhone } from "@/lib/ledger";
 import { toCents } from "@/lib/parse";
@@ -18,13 +18,6 @@ export async function POST(req: NextRequest) {
   const pin = String(b.pin ?? "").trim();
   if (!phone) return NextResponse.json({ error: "That doesn't look like a US mobile number." }, { status: 400 });
   if (!validPin(pin)) return NextResponse.json({ error: "Your PIN is 4 to 8 digits." }, { status: 400 });
-
-  if (demoMode()) {
-    const invite = env("DEMO_INVITE_CODE");
-    if (!invite || String(b.invite ?? "").trim().toLowerCase() !== invite.toLowerCase()) {
-      return NextResponse.json({ error: "That invite code isn't right. Ask whoever sent you the link." }, { status: 403 });
-    }
-  }
 
   const q = await db();
   const existing = await userByPhone(phone);

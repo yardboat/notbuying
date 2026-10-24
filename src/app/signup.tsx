@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { SMS_CONSENT_TEXT } from "@/lib/consent";
 
-export default function Signup({ signedIn, demo }: { signedIn: boolean; demo: boolean }) {
+export default function Signup({ signedIn }: { signedIn: boolean; demo?: boolean }) {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [step, setStep] = useState<"form" | "code">("form");
   const [busy, setBusy] = useState(false);
@@ -87,12 +87,6 @@ export default function Signup({ signedIn, demo }: { signedIn: boolean; demo: bo
               autoComplete={mode === "signup" ? "new-password" : "current-password"}
             />
           </label>
-          {demo && (
-            <label className="block">
-              <span className="type text-sm text-ink-2">Invite code (prototype testers only)</span>
-              <input className="field" required value={f.invite} onChange={set("invite")} autoCapitalize="none" autoComplete="off" />
-            </label>
-          )}
           {mode === "signup" && (
             <fieldset className="border-2 border-ink p-4">
               <legend className="type px-1 text-sm">Text messages (optional)</legend>

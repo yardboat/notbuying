@@ -244,7 +244,9 @@ export async function handleMessage(opts: { user: User; body: string; channel: "
     hint = llm?.category ?? null;
   }
 
-  const reply = await respond(user, parsed, body, opts.sid ?? null, hint);
+  const raw = await respond(user, parsed, body, opts.sid ?? null, hint);
+  // Every outbound text names the program (carrier/TFV requirement).
+  const reply = raw && !raw.startsWith("Not Buying") ? `Not Buying: ${raw}` : raw;
   if (reply) await log(uid, "out", channel, reply, parsed.intent);
   return reply;
 }

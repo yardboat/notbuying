@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SMS_CONSENT_TEXT, SMS_CONSENT_VERSION } from "@/lib/consent";
+import { SMS_CONSENT_TEXT, SMS_CONSENT_VERSION, SMS_OPTIN_CONFIRMATION } from "@/lib/consent";
+import { demoMode } from "@/lib/env";
+import { sendSms } from "@/lib/sms";
 import { recordSmsConsent, userById } from "@/lib/ledger";
 import { currentUserId } from "@/lib/session";
 import { checkSmsConfirm } from "@/lib/sms-confirm";
@@ -17,5 +19,6 @@ export async function POST(req: NextRequest) {
   if (r === "expired") return NextResponse.json({ error: "That code expired. Send a new one." }, { status: 400 });
   if (r === "wrong") return NextResponse.json({ error: "Wrong code." }, { status: 400 });
   await recordSmsConsent(uid, `${SMS_CONSENT_VERSION}: ${SMS_CONSENT_TEXT}`);
+  if (!demoMode()) await sendSms(user.phone, SMS_OPTIN_CONFIRMATION).catch(() => null);
   return NextResponse.json({ ok: true });
 }

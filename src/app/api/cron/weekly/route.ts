@@ -31,8 +31,8 @@ export async function GET(req: NextRequest) {
     // A week with skips gets the card itself as a picture message; a quiet week gets a nudge.
     const mediaUrl = r.count ? `${appUrl()}/i/${encodeURIComponent(makeShareId(uid, week))}/mms` : null;
     const body = r.count
-      ? `Issue ${issue}. ${usd(r.skipped)} not spent, ${usd(r.pledged, { always2: true })} to give. Send the difference + see your dashboard: ${dash}`
-      : `Issue ${issue}: a quiet week. Nothing logged. Next time you walk past something, text it: coffee 5`;
+      ? `Not Buying, Issue ${issue}. ${usd(r.skipped)} not spent, ${usd(r.pledged, { always2: true })} to give. Send the difference + see your dashboard: ${dash}`
+      : `Not Buying, Issue ${issue}: a quiet week. Nothing logged. Next time you walk past something, text it: coffee 5`;
     if (!demoMode()) {
       const res = await sendSms(u.phone, body, mediaUrl ?? undefined);
       if (!res.ok) continue;

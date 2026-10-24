@@ -1,6 +1,6 @@
 import Link from "next/link";
 import LegalShell from "../legal-shell";
-import { SMS_CONSENT_TEXT } from "@/lib/consent";
+import { SMS_CONSENT_TEXT, SMS_OPTIN_CONFIRMATION } from "@/lib/consent";
 
 export const metadata = { title: "SMS Terms & Opt-in · Not Buying" };
 
@@ -34,15 +34,15 @@ export default function Sms() {
       <h2>What we send</h2>
       <ul>
         <li>A reply to each message the person sends us (a receipt for the item they logged).</li>
-        <li>A one-time code to confirm their number when they turn texts on.</li>
+        <li>A one-time code to confirm their number when they turn texts on, then one confirmation message: &ldquo;{SMS_OPTIN_CONFIRMATION}&rdquo;</li>
         <li>One weekly recap on Sundays.</li>
       </ul>
       <p>Message frequency varies (about 2-10 messages per week). Message and data rates may apply. We never send marketing or promotional texts.</p>
 
       <h2>Sample messages</h2>
       <ul>
-        <li>&ldquo;No croissant. +$5. Bike: $155 of $500 (31%). $0.50 pledged to Feeding America (~5 meals). Every no is a yes to something.&rdquo;</li>
-        <li>&ldquo;Issue 03. $86 not spent, $8.60 to give. Send the difference + see your dashboard: https://notbuying.org/in/...&rdquo;</li>
+        <li>&ldquo;Not Buying: No croissant. +$5. Bike: $155 of $500 (31%). $0.50 pledged to Feeding America (~5 meals). Every no is a yes to something.&rdquo;</li>
+        <li>&ldquo;Not Buying, Issue 03. $86 not spent, $8.60 to give. Send the difference + see your dashboard: https://notbuying.org/in/abc123&rdquo;</li>
         <li>&ldquo;Not Buying: your code is 482913. Enter it to turn on texts. Msg &amp; data rates may apply. Reply STOP to opt out.&rdquo;</li>
       </ul>
 

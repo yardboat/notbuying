@@ -24,7 +24,7 @@ export default function Privacy() {
       <h2>How we use information</h2>
       <ul>
         <li>To provide the service: record what you log, calculate your goal progress and pledges, show your dashboard and weekly recap.</li>
-        <li>If you opted in to texts: to reply to your texts, send sign-in and confirmation codes, and send one weekly recap.</li>
+        <li>If you opted in to texts: to reply to your texts, send a one-time code to confirm your number, and send one weekly recap.</li>
         <li>To keep the service secure, prevent abuse and fix problems.</li>
         <li>To understand, in aggregate, how the service is used so we can improve it.</li>
       </ul>
@@ -39,8 +39,7 @@ export default function Privacy() {
       <p>
         <strong>
           No mobile information will be shared with third parties or affiliates for marketing or promotional purposes. Text messaging originator opt-in data and consent
-          will not be shared with any third parties, except with the service providers that deliver our text messages on our behalf (for example, Twilio) and only to
-          provide the service.
+          will not be shared with any third parties.
         </strong>{" "}
         All the sharing categories described below exclude text messaging originator opt-in data and consent; this information will not be shared with any third parties.
       </p>

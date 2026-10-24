@@ -22,8 +22,9 @@ export default function Terms() {
 
       <h2>Text messages (optional)</h2>
       <p>
-        Texting is optional and not required to use Not Buying. If you opt in, our <Link href="/sms">SMS Terms</Link> apply. Reply STOP to opt out at any time and
-        HELP for help. Message and data rates may apply.
+        Texting is optional and not required to use Not Buying. Not Buying texts (operated by Yardboat LLC) are replies to items you log, a one-time number
+        confirmation code and a weekly Sunday recap. Message frequency varies (about 2-10 per week). Msg &amp; data rates may apply. Reply HELP for help or email
+        hello@notbuying.org; reply STOP to opt out. Carriers are not liable for delayed or undelivered messages. Full details in our <Link href="/sms">SMS Terms</Link>.
       </p>
 
       <h2>Donations</h2>

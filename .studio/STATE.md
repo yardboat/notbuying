@@ -34,6 +34,9 @@ _Updated 2026-10-24_
 - Resubmission pack: .studio/twilio-tfv-pack.md (Randall submits; window closes 2026-10-31).
 - After approval: Twilio webhook → https://notbuying.org/api/sms/inbound, DEMO_MODE=false, real-phone test (code, confirmation, receipt, HELP, STOP).
 
+## 2026-10-27 TFV rejected then resubmitted
+- Rejected 30482 (gmail contact email); resubmitted with hello@notbuying.org. Await result; if >3 business days, open Twilio ticket citing SID HHeaaab94185e9c9014962ca4920780cf1.
+
 ## Next
 1. Apply docs/copy-proof.md; re-run QA-critic on merged build.
 2. Twilio toll-free verification submitted 2026-10-18; on approval set webhook + DEMO_MODE=false.

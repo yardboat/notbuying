@@ -52,6 +52,9 @@ _Updated 2026-10-24_
 ## 2026-10-28 Dashboard simplified (Randall feedback)
 - "Savings" everywhere (custom fund name removed); carrot shown as a plain meter (ransom-letter collage retired from the dashboard); phone simulator removed (logging stays on text; a plain web log box shows only for people with texts off, since texting is optional); three equal bucket cards; extra sections moved into dropdowns.
 
+## 2026-10-28 Accent -> ink blue
+- --hot #2a5394 (fills, buttons, carrot), --hot-deep #1c3863 navy (accent text, cutouts), light text on both; savings fill warm grey #a39e92. Site, share card, icons, logo SVGs, motion clips (re-rendered), TFV opt-in screenshot all updated.
+
 ## Next (tester wave)
 1. Pre-tester audit on the live SMS build: qa-critic end to end + live-model eval of the LLM-only parser cases (key now set).
 2. First real Sunday recap (Nov 1): force-send one MMS card to Randall before then; confirm cron schedule.

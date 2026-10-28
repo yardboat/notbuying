@@ -14,3 +14,4 @@
 | 10 | 2026-10-24 | SMS consent optional + double opt-in; PIN sign-in replaces SMS login codes; invite gate removed | TFV 30513/30553/30509 | reversible | COO |
 | 11 | 2026-10-24 | Every regulated submission gets an independent compliance review before Randall submits | First-round rejection cost a week | locked | Randall |
 | 12 | 2026-10-28 | Three-way split per skip (carrot/savings/giving), giving min 5%, funded carrot pauses and holds its share, savings target optional | Randall's direction | reversible | Randall |
+| 13 | 2026-10-28 | Accent color: ink blue #2a5394 (navy #1c3863 for text) replaces hot orange | Randall: tone down aggressiveness; picked from 6 options | reversible | Randall |

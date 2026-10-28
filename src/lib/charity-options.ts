@@ -23,7 +23,7 @@ export const CHARITY_OPTIONS: Record<PickCategory, [CharityOption, CharityOption
       slug: "feedingamerica",
       name: "Feeding America",
       tag: "obvious",
-      why: "The country's biggest food bank network. Your croissant becomes groceries.",
+      why: "The country's biggest food bank network. Your skipped takeout becomes groceries.",
       cause: "food access",
       impact: { centsPerUnit: 10, unit: "meal", source: "https://www.feedingamerica.org/ways-to-give/faq/about-our-claims" },
     },

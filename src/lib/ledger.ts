@@ -23,7 +23,7 @@ const MOUTH = [
   "They wanted it. You kept it.",
   "Intent 1, impulse 0.",
   "The algorithm will have to cope.",
-  "The croissant industry will survive.",
+  "The takeout industry will survive.",
   "Your wallet says thanks.",
   "Retargeting ads: wasted on you.",
   "Quietly powerful.",
@@ -357,9 +357,9 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       return null; // Twilio handles the STOP confirmation for toll-free numbers
     case "start":
       await q("UPDATE users SET status = 'active', sms_consent = true, sms_consent_at = now() WHERE id = $1", [uid]);
-      return "You're back. Text what you didn't buy, like: croissant 5";
+      return "You're back. Text what you didn't buy, like: takeout 25";
     case "help":
-      return "Not Buying: text what you skipped + price (croissant 5). Also: totals, undo, new goal bike 500, dashboard. Help: hello@notbuying.org. Msg&data rates may apply. STOP to opt out.";
+      return "Not Buying: text what you skipped + price (takeout 25). Also: totals, undo, new goal bike 500, dashboard. Help: hello@notbuying.org. Msg&data rates may apply. STOP to opt out.";
     case "dashboard":
       return `Your dashboard: ${await dashboardLink(uid)}`;
     case "totals": {
@@ -396,7 +396,7 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
     case "bad_price":
       return BAD_PRICE;
     case "price_only": {
-      if (!user.pending_item) return "Got a number, but for what? Text the item and price, like: croissant 5";
+      if (!user.pending_item) return "Got a number, but for what? Text the item and price, like: takeout 25";
       if (p.needsConfirm) return askConfirm(uid, user.pending_item, p.priceCents);
       return skipReply(user, user.pending_item, p.priceCents, raw, sid, hint);
     }

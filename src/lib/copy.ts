@@ -10,10 +10,10 @@ export const BIG_PRICE_LIMIT_CENTS = 500_000;
 export const bigPriceCancelled = "Okay, not logged. Text it again with the right price if that was a typo.";
 
 /** Price is 0 or negative. */
-export const BAD_PRICE = "Needs a real price above $0. Try: croissant 5";
+export const BAD_PRICE = "Needs a real price above $0. Try: takeout 25";
 
 /** Chit-chat / greetings / thanks. */
-export const CHITCHAT = "Ha, thanks. I only do ledgers. Text what you skipped + price, like: croissant 5. Or: totals, undo, help.";
+export const CHITCHAT = "Ha, thanks. I only do ledgers. Text what you skipped + price, like: takeout 25. Or: totals, undo, help.";
 
 /** New goal resets the meter. `label`/`amount` pre-formatted. Lifetime totals stay. */
 export const newGoalReply = (label: string, amount: string, carried?: string) =>

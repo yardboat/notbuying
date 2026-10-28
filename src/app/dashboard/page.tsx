@@ -53,7 +53,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <p className="display text-2xl">You&apos;re in{user.name ? `, ${user.name}` : ""}.</p>
           <p className="mt-1 text-sm">
             {user.sms_consent || demoMode()
-              ? `Save ${number ? prettyPhone(number) : "our number"} and text it the next thing you don't buy, like: croissant 5`
+              ? `Save ${number ? prettyPhone(number) : "our number"} and text it the next thing you don't buy, like: takeout 25`
               : "Turn on texts at the bottom of this page, then text us the next thing you don't buy."}
           </p>
         </div>

@@ -29,7 +29,7 @@ export default function QuickLog() {
     <form onSubmit={send} className="space-y-3">
       <label className="block">
         <span className="type text-sm text-ink-2">What you didn&apos;t buy, and the price</span>
-        <input className="field" placeholder="croissant 5" value={body} onChange={(e) => setBody(e.target.value)} maxLength={160} />
+        <input className="field" placeholder="takeout 25" value={body} onChange={(e) => setBody(e.target.value)} maxLength={160} />
       </label>
       <button className="btn" disabled={busy}>{busy ? "Logging…" : "Log it"}</button>
       {reply && <p className="text-sm" role="status">{reply}</p>}

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 type Msg = { direction: "in" | "out"; body: string; media_url?: string | null };
 
-const SUGGEST = ["croissant 5", "uber 18", "new sneakers 120", "totals", "undo"];
+const SUGGEST = ["takeout 25", "uber 18", "new sneakers 120", "totals", "undo"];
 
 export default function Simulator({ live, number }: { live: boolean; number: string | null }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -51,7 +51,7 @@ export default function Simulator({ live, number }: { live: boolean; number: str
       </div>
       <div ref={box} className="h-[46dvh] min-h-72 space-y-3 overflow-y-auto p-4 text-[15px] leading-snug" aria-live="polite">
         {msgs.length === 0 && (
-          <p className="type text-sm text-ink-2">Didn&apos;t buy something today? Type it with the price. Try: croissant 5</p>
+          <p className="type text-sm text-ink-2">Didn&apos;t buy something today? Type it with the price. Try: takeout 25</p>
         )}
         {msgs.map((m, i) =>
           m.direction === "in" ? (

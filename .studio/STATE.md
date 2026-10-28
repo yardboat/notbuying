@@ -37,6 +37,10 @@ _Updated 2026-10-24_
 ## 2026-10-27 TFV rejected then resubmitted
 - Rejected 30482 (gmail contact email); resubmitted with hello@notbuying.org. Await result; if >3 business days, open Twilio ticket citing SID HHeaaab94185e9c9014962ca4920780cf1.
 
+## 2026-10-28 TFV APPROVED
+- DEMO_MODE=false set on Vercel production; redeploying. Next: point Twilio number webhook at https://notbuying.org/api/sms/inbound (POST), then real-phone test.
+- ANTHROPIC_API_KEY is not set in Vercel: regex fast path works, LLM fallback does not. Link it before inviting testers.
+
 ## Next
 1. Apply docs/copy-proof.md; re-run QA-critic on merged build.
 2. Twilio toll-free verification submitted 2026-10-18; on approval set webhook + DEMO_MODE=false.

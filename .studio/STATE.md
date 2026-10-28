@@ -41,8 +41,9 @@ _Updated 2026-10-24_
 - DEMO_MODE=false set on Vercel production; redeploying. Next: point Twilio number webhook at https://notbuying.org/api/sms/inbound (POST), then real-phone test.
 - Anthropic key set in Vercel prod as ANTHROPIC_KEY (code accepts both names). Twilio webhook set. Real-phone test PASSED 2026-10-28; cleared to invite testers.
 
-## Next
-1. Apply docs/copy-proof.md; re-run QA-critic on merged build.
-2. Twilio toll-free verification submitted 2026-10-18; on approval set webhook + DEMO_MODE=false.
-3. notbuying.org purchase + connect.
-4. Live-model eval for 13 LLM-only cases; link ANTHROPIC_API_KEY to project.
+## Next (tester wave)
+1. Pre-tester audit on the live SMS build: qa-critic end to end + live-model eval of the LLM-only parser cases (key now set).
+2. First real Sunday recap (Nov 1): force-send one MMS card to Randall before then; confirm cron schedule.
+3. Settle-up: one real small donation through Every.org end to end.
+4. Ops: Twilio spend alert, error alerts, /api/admin/stats check.
+5. Invite testers (Randall supplies list + invite text); success metric = skips per tester per week.

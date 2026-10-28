@@ -35,7 +35,7 @@ export default function SettleButton({ charity, cents }: { charity: string; cent
   return (
     <div className="flex shrink-0 flex-col items-end gap-2">
       {!pid ? (
-        <button onClick={go} disabled={busy} className="btn btn-hot px-4 py-2 text-sm">Send {amount}</button>
+        <button onClick={go} disabled={busy} className="btn px-4 py-2 text-sm">Send {amount}</button>
       ) : (
         <button onClick={confirm} disabled={busy} className="btn px-4 py-2 text-sm">I donated ✓</button>
       )}

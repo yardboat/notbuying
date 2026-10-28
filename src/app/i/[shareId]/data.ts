@@ -47,7 +47,7 @@ export async function publicIssue(shareId: string): Promise<PublicIssue | null> 
     pledged: r.pledged,
     carrot: r.carrot,
     savings: r.savings,
-    savingsLabel: user.savings_label || "Savings",
+    savingsLabel: "Savings", // public card: never show the private name of the fund
     savingsTotal,
     savingsTarget: user.savings_target_cents ? Number(user.savings_target_cents) : null,
     biggest: r.biggest ? { item: r.biggest.item, cents: r.biggest.price_cents } : null,

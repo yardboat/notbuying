@@ -108,9 +108,11 @@ function Ledger({ d, scale }: { d: PublicIssue; scale: number }) {
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
           <div style={{ ...type, fontSize: s(17), color: T.ink2 }}>{d.savingsLabel.toLowerCase().slice(0, 22)}</div>
           <div style={{ ...display, fontSize: s(26), marginTop: s(4) }}>{savingsPct != null ? `${usd(d.savingsTotal)}: ${savingsPct}%` : `${usd(d.savingsTotal)} saved`}</div>
-          <div style={{ display: "flex", height: s(16), marginTop: s(8), border: `${s(3)}px solid ${T.ink}` }}>
-            <div style={{ display: "flex", width: `${savingsPct ?? 100}%`, background: savingsPct != null ? T.ink : "transparent" }} />
-          </div>
+          {savingsPct != null && (
+            <div style={{ display: "flex", height: s(16), marginTop: s(8), border: `${s(3)}px solid ${T.ink}` }}>
+              <div style={{ display: "flex", width: `${savingsPct}%`, background: T.ink }} />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -29,7 +29,7 @@ export default function Terms() {
 
       <h2>Donations</h2>
       <p>
-        Pledges are suggestions calculated as 10% of what you skipped. Any donation is made by you directly to the charity through Every.org, under Every.org&apos;s
+        Pledges are suggestions calculated as the giving share you choose (at least 5%) of what you skipped. Any donation is made by you directly to the charity through Every.org, under Every.org&apos;s
         terms. We don&apos;t process payments and make no claims about the tax treatment of your donations. Impact figures (like meals) come from the charity&apos;s
         own published numbers and are approximate.
       </p>

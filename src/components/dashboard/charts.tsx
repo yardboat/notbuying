@@ -47,8 +47,8 @@ export function ProgressChart({
   const nice = niceCeil(max);
   const last = cols[cols.length - 1];
   // Skip leading empty weeks so a new user's chart isn't 11 blank columns.
-  const firstIdx = Math.max(0, Math.min(cols.findIndex((c) => c.total > 0), cols.length - 4));
-  const shown = firstIdx < 0 ? cols.slice(-4) : cols.slice(firstIdx);
+  const idx = cols.findIndex((c) => c.total > 0);
+  const shown = idx < 0 ? cols.slice(-4) : cols.slice(Math.min(idx, cols.length - 4));
 
   return (
     <figure>
@@ -58,7 +58,7 @@ export function ProgressChart({
         <ol className="flex h-48 items-end gap-1.5 border-b-2 border-ink pt-0 sm:gap-2" aria-label="Running total of money not spent, by week">
           {shown.map((c, i) => {
             const isLast = i === shown.length - 1;
-            const label = `Week of ${prettyDate(c.week)}: ${usd(c.total)} so far (${names.carrot} ${usd(c.carrot)}, ${names.savings} ${usd(c.savings)}, giving ${usd(c.give, { always2: true })}). ${c.count} no${c.count === 1 ? "" : "s"} that week.`;
+            const label = `Week of ${prettyDate(c.week)}: ${usd(c.total)} so far (${names.carrot} ${usd(c.carrot)}, ${names.savings} ${usd(c.savings)}, giving ${usd(c.give, { always2: true })}). ${c.count} no${c.count === 1 ? "" : "'s"} that week.`;
             return (
               <li key={c.week} className="group relative flex h-full flex-1 flex-col justify-end" tabIndex={0} aria-label={label} title={label}>
                 {isLast && c.total > 0 && (

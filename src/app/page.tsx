@@ -85,7 +85,7 @@ export default async function Home() {
               <ol className="mt-8 space-y-4 text-lg leading-relaxed">
                 <li><span className="font-bold">1.</span> Pick one thing you actually want. A bike. A trip. A guitar.</li>
                 <li><span className="font-bold">2.</span> Every time you skip something, text it with the price.</li>
-                <li><span className="font-bold">3.</span> The full amount counts toward your thing. <span className="bg-hot px-1 text-hot-ink">10% gets pledged</span> to a charity matched to what you skipped.</li>
+                <li><span className="font-bold">3.</span> It splits three ways, your way: your thing, your savings, and <span className="bg-hot px-1 text-hot-ink">at least 5% pledged</span> to a charity matched to what you skipped.</li>
                 <li><span className="font-bold">4.</span> Sunday, your issue drops. One tap and the week&apos;s pledges go out.</li>
               </ol>
             </div>

@@ -30,7 +30,7 @@ export default function Simulator({ live, number }: { live: boolean; number: str
       const res = await fetch("/api/sim", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body }) });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401) {
-        window.location.href = "/#start";
+        window.location.assign("/#start");
         return;
       }
       if (!res.ok) throw new Error();

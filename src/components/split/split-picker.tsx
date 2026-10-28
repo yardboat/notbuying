@@ -28,7 +28,7 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
   const savingsName = label.trim() || "Savings";
   const rows: { key: keyof Split; name: string; hint: string }[] = [
     { key: "carrot", name: carrotName, hint: "the thing you're working toward" },
-    { key: "savings", name: savingsName, hint: "cash, an emergency fund, retirement" },
+    { key: "savings", name: savingsName, hint: "cash, an emergency fund, retirement · the name stays private" },
     { key: "give", name: "Giving", hint: `to the charities you pick · at least ${MIN_GIVE}%` },
   ];
   const ex = splitCents(1000, s);
@@ -66,11 +66,17 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
     if (!validSplit(s)) return setErr(`Needs to add up to 100%, with at least ${MIN_GIVE}% to giving.`);
     setBusy(true);
     setErr(null);
-    const res = await fetch("/api/split", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...s, savingsTarget: target, savingsLabel: label }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/split", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...s, savingsTarget: target, savingsLabel: label }),
+      });
+    } catch {
+      setBusy(false);
+      return setErr("Couldn't reach us. Check your connection and try again.");
+    }
     const data = await res.json().catch(() => ({}));
     setBusy(false);
     if (!res.ok) return setErr(data.error ?? "Something broke. Try again.");
@@ -123,6 +129,7 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
           })}
         </div>
         <p className="type mt-3 text-xs text-ink-2">Drag the seams, or use the buttons below.</p>
+        <p className="sr-only" aria-live="polite">{`${carrotName} ${s.carrot}%, ${savingsName} ${s.savings}%, Giving ${s.give}%`}</p>
       </div>
 
       {/* Rows with steppers */}
@@ -137,7 +144,7 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
             <button type="button" className="h-11 w-11 border-2 border-ink text-xl" aria-label={`Less to ${name}`} onClick={() => setS(nudge(s, key, -STEP))}>
               −
             </button>
-            <span className="display w-14 text-center text-2xl" aria-live="polite">{s[key]}%</span>
+            <span className="display w-14 text-center text-2xl">{s[key]}%</span>
             <button type="button" className="h-11 w-11 border-2 border-ink text-xl" aria-label={`More to ${name}`} onClick={() => setS(nudge(s, key, STEP))}>
               +
             </button>

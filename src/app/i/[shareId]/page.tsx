@@ -107,7 +107,7 @@ export default async function PublicIssuePage({ params }: P) {
 
       <Link href="/" className="btn btn-hot mt-10 w-full text-lg">Start your own →</Link>
       <p className="mt-3 text-center text-xs text-ink-2">
-        Text what you didn&apos;t buy. It builds toward what you want, and 10% goes to someone who needs it more.
+        Text what you didn&apos;t buy. It splits between what you want, your savings and someone who needs it more.
       </p>
       <p className="mt-6 text-center text-xs">
         <a href={`/i/${shareId}/portrait`} className="underline decoration-2 underline-offset-4" download={`issue-${d.issue}.png`}>

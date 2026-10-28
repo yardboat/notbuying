@@ -1,5 +1,5 @@
 // Copy for the "Pick your charities" onboarding step. Voice: docs/voice.md.
-export const PICK_TITLE = "Pick where your 10% goes.";
+export const PICK_TITLE = "Pick where your giving goes.";
 
 export const PICK_INTRO =
   "Your nos fund a yes, and you choose who gets it. We suggested three per category: the obvious one, the progressive one, the interesting one.";

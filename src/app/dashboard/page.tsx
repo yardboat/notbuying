@@ -30,7 +30,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const number = env("TWILIO_PHONE_NUMBER");
   const owed = Object.entries(s.owed).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]);
 
-  const names = { carrot: s.goal?.label ?? "The carrot", savings: s.savings.label, give: "Giving" };
+  const names = { carrot: s.pastGoals.length || !s.goal ? "Carrots" : s.goal.label, savings: s.savings.label, give: "Giving" };
   const cats = Object.entries(s.byCategory)
     .map(([k, v]) => ({ label: CATEGORY_LABEL[k as keyof typeof CATEGORY_LABEL] ?? k, ...v }))
     .sort((x, y) => y.cents - x.cents)
@@ -62,6 +62,15 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       )}
       {picked && !welcome && <p className="print-in mb-8 border-2 border-ink p-3 text-sm">{SAVED_TOAST}</p>}
       {split && !welcome && <p className="print-in mb-8 border-2 border-ink p-3 text-sm">Split saved. Your next no divides the new way.</p>}
+
+      {!user.split_set_at && !welcome && (
+        <Link href="/setup/split" className="print-in mb-8 block border-2 border-ink bg-receipt p-4">
+          <span className="display block text-2xl">New: split every no three ways.</span>
+          <span className="mt-1 block text-sm">
+            Your thing, your savings, your giving. You&apos;re on {s.split.carrot}/{s.split.savings}/{s.split.give} for now. <span className="underline">Choose yours →</span>
+          </span>
+        </Link>
+      )}
 
       {/* Hero: lifetime */}
       <section className="receipt p-6 sm:p-8">
@@ -150,7 +159,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </section>
 
       {/* Progress over time */}
-      <section className="mt-14">
+      {s.lifetime.count > 0 && <section className="mt-14">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="display text-2xl">The pile, growing</h2>
           <span className="type text-xs text-ink-2">running total by week</span>
@@ -158,7 +167,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="mt-8">
           <ProgressChart weeks={s.weeks} baseline={s.baseline} names={names} />
         </div>
-      </section>
+      </section>}
 
       {cats.length > 0 && (
         <section className="mt-14">

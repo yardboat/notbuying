@@ -53,7 +53,7 @@ export async function activeGoal(userId: number) {
 
 export async function goalSaved(goalId: number) {
   const q = await db();
-  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(carrot_cents),0) AS s FROM skips WHERE goal_id = $1 AND undone_at IS NULL", [goalId]);
+  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(COALESCE(carrot_cents, price_cents - pledge_cents)),0) AS s FROM skips WHERE goal_id = $1 AND undone_at IS NULL", [goalId]);
   return Number(r?.s ?? 0);
 }
 
@@ -69,7 +69,7 @@ export async function skipsFor(userId: number, since?: string, until?: string) {
     id: Number(r.id),
     price_cents: Number(r.price_cents),
     pledge_cents: Number(r.pledge_cents),
-    carrot_cents: Number(r.carrot_cents ?? r.price_cents),
+    carrot_cents: Number(r.carrot_cents ?? Number(r.price_cents) - Number(r.pledge_cents)),
     savings_cents: Number(r.savings_cents ?? 0),
     goal_id: r.goal_id == null ? null : Number(r.goal_id),
   }));
@@ -83,15 +83,15 @@ export function userSplit(u: User | null): Split {
 /** Carrot money logged while no carrot was active (or after one was funded): waits for the next carrot. */
 export async function heldCarrot(userId: number) {
   const q = await db();
-  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(carrot_cents),0) AS s FROM skips WHERE user_id = $1 AND goal_id IS NULL AND undone_at IS NULL", [userId]);
+  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(COALESCE(carrot_cents, price_cents - pledge_cents)),0) AS s FROM skips WHERE user_id = $1 AND goal_id IS NULL AND undone_at IS NULL", [userId]);
   return Number(r?.s ?? 0);
 }
 
 export async function pastGoals(userId: number) {
   const q = await db();
   const rows = await q<Goal & { saved: string }>(
-    `SELECT g.id, g.label, g.target_cents, g.reached_at, COALESCE(SUM(s.carrot_cents) FILTER (WHERE s.undone_at IS NULL),0) AS saved
-     FROM goals g LEFT JOIN skips s ON s.goal_id = g.id WHERE g.user_id = $1 AND g.reached_at IS NOT NULL GROUP BY g.id ORDER BY g.reached_at DESC`,
+    `SELECT g.id, g.label, g.target_cents, g.reached_at, COALESCE(SUM(COALESCE(s.carrot_cents, s.price_cents - s.pledge_cents)) FILTER (WHERE s.undone_at IS NULL),0) AS saved
+     FROM goals g LEFT JOIN skips s ON s.goal_id = g.id WHERE g.user_id = $1 AND g.reached_at IS NOT NULL AND NOT g.active GROUP BY g.id ORDER BY g.reached_at DESC`,
     [userId],
   );
   return rows.map((g) => ({ ...g, id: Number(g.id), target_cents: Number(g.target_cents), saved: Number(g.saved) }));
@@ -364,9 +364,10 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       return `Your dashboard: ${await dashboardLink(uid)}`;
     case "totals": {
       const s = await summary(uid);
-      const g = s.goal ? `${s.goal.label}: ${usd(s.goal.saved)} of ${usd(s.goal.target_cents)} (${s.goal.pct}%). ` : s.held ? `${usd(s.held)} waiting for a carrot. ` : "No carrot yet. Text: new goal bike 500. ";
+      const heldTxt = s.goal?.reached_at && s.held ? `${usd(s.held)} waiting for your next carrot. ` : "";
+      const g = s.goal ? `${s.goal.label}: ${usd(s.goal.saved)} of ${usd(s.goal.target_cents)} (${s.goal.pct}%). ${heldTxt}` : s.held ? `${usd(s.held)} waiting for a carrot. ` : "No carrot yet. Text: new goal bike 500. ";
       const sv = `${s.savings.label}: ${usd(s.savings.total)}${s.savings.target ? ` of ${usd(s.savings.target)}` : ""}. `;
-      return `${g}${sv}Given: ${usd(s.lifetime.pledged, { always2: true })}. All time: ${s.lifetime.count} no's, ${usd(s.lifetime.skipped)} not spent. This week: ${s.thisWeek.count}.`;
+      return `${g}${sv}Given: ${usd(s.lifetime.pledged, { always2: true })}. All time: ${s.lifetime.count} no${s.lifetime.count === 1 ? "" : "'s"}, ${usd(s.lifetime.skipped)} not spent. This week: ${s.thisWeek.count}.`;
     }
     case "undo": {
       const [last] = await q<{ id: number; item: string; price_cents: number }>(
@@ -383,7 +384,14 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       if (!p.targetCents) return `What does ${cleanGoal(p.label)} cost? Text: new goal ${p.label} 500`;
       const waiting = await heldCarrot(uid);
       await setGoal(uid, p.label, p.targetCents);
-      return newGoalReply(cleanGoal(p.label), usd(p.targetCents), waiting > 0 ? usd(waiting) : undefined);
+      const label = cleanGoal(p.label);
+      if (waiting >= p.targetCents) {
+        // The waiting money already covers it: fund it now (any overflow stays with this carrot).
+        const g = await activeGoal(uid);
+        if (g) await q("UPDATE goals SET reached_at = now() WHERE id = $1", [g.id]);
+        return `New carrot: ${label}, ${usd(p.targetCents)}. The ${usd(waiting)} waiting already covers it. ${label.toUpperCase()} FUNDED. Go get it.`;
+      }
+      return newGoalReply(label, usd(p.targetCents), waiting > 0 ? usd(waiting) : undefined);
     }
     case "bad_price":
       return BAD_PRICE;
@@ -428,7 +436,7 @@ async function skipReply(user: User, item: string, priceCents: number, raw: stri
     if (saved >= target && !r.goal.reached_at) {
       const q = await db();
       await q("UPDATE goals SET reached_at = now() WHERE id = $1", [r.goal.id]);
-      return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${r.goal.label.toUpperCase()} FUNDED: ${usd(saved)}. Go get it. Pick your next carrot: text new goal camera 800. Its share waits for it.`;
+      return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${r.goal.label.toUpperCase()} FUNDED: ${usd(saved)}. Go get it. Next carrot? Text: new goal camera 800`;
     }
     return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${r.goal.label}: ${usd(saved)} of ${usd(target)} (${pct(saved, target)}%). ${mouth(Math.floor(Date.now() / 1000) + item.length)}`;
   }

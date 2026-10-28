@@ -45,7 +45,7 @@ Examples:
 let client: Anthropic | null = null;
 
 async function call(user: string, maxTokens = 200): Promise<string | null> {
-  const key = env("ANTHROPIC_API_KEY");
+  const key = env("ANTHROPIC_API_KEY") ?? env("ANTHROPIC_KEY"); // prod var was created as ANTHROPIC_KEY (sensitive vars cannot be renamed)
   if (!key) return null;
   client ??= new Anthropic({ apiKey: key });
   const model = env("ANTHROPIC_MODEL") ?? "claude-haiku-5-5";

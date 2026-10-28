@@ -39,7 +39,7 @@ _Updated 2026-10-24_
 
 ## 2026-10-28 TFV APPROVED
 - DEMO_MODE=false set on Vercel production; redeploying. Next: point Twilio number webhook at https://notbuying.org/api/sms/inbound (POST), then real-phone test.
-- ANTHROPIC_API_KEY is not set in Vercel: regex fast path works, LLM fallback does not. Link it before inviting testers.
+- Anthropic key set in Vercel prod as ANTHROPIC_KEY (code accepts both names). Twilio webhook set. Pending: real-phone test (opt-in, confirmation, receipt, HELP, STOP).
 
 ## Next
 1. Apply docs/copy-proof.md; re-run QA-critic on merged build.

@@ -41,7 +41,7 @@ export default function Sms() {
 
       <h2>Sample messages</h2>
       <ul>
-        <li>&ldquo;Not Buying: No croissant. +$5. Bike: $155 of $500 (31%). $0.50 pledged to Feeding America (~5 meals). Every no is a yes to something.&rdquo;</li>
+        <li>&ldquo;Not Buying: No croissant. +$5: $3 Bike, $1.50 savings, $0.50 to Feeding America (~5 meals). Bike: $155 of $500 (31%). Every no is a yes to something.&rdquo;</li>
         <li>&ldquo;Not Buying, Issue 03. $86 not spent, $8.60 to give. Send the difference + see your dashboard: https://notbuying.org/in/abc123&rdquo;</li>
         <li>&ldquo;Not Buying: your code is 482913. Enter it to turn on texts. Msg &amp; data rates may apply. Reply STOP to opt out.&rdquo;</li>
       </ul>

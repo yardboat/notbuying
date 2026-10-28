@@ -41,6 +41,14 @@ _Updated 2026-10-24_
 - DEMO_MODE=false set on Vercel production; redeploying. Next: point Twilio number webhook at https://notbuying.org/api/sms/inbound (POST), then real-phone test.
 - Anthropic key set in Vercel prod as ANTHROPIC_KEY (code accepts both names). Twilio webhook set. Real-phone test PASSED 2026-10-28; cleared to invite testers.
 
+## 2026-10-28 Three-way split + visual dashboard (shipped 1e2fc52)
+- Every no splits by user %: carrot (named thing + target) / savings (optional name + target) / giving (min 5%). Default 60/30/10; existing users see a "choose your split" banner.
+- Funded carrot pauses; its share is held and carries to the next carrot (instantly funds it if the held amount covers the target).
+- Picker at /setup/split (drag seams, steppers, presets); onboarding = signup -> split -> charities.
+- Dashboard: lifetime hero, where-it-went bar, carrot meter, savings + giving cards, running-total chart, category bars; lists collapsed.
+- Sunday card shows the split + carrot and savings progress (public card never shows the private savings name).
+- Independent QA: ship after fixes; all P1s fixed. Open P2: card carrot % is "now" not "as of week end".
+
 ## Next (tester wave)
 1. Pre-tester audit on the live SMS build: qa-critic end to end + live-model eval of the LLM-only parser cases (key now set).
 2. First real Sunday recap (Nov 1): force-send one MMS card to Randall before then; confirm cron schedule.

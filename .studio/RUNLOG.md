@@ -10,3 +10,4 @@
 - 2026-10-28 TFV APPROVED (SID HHeaaab94185e9c9014962ca4920780cf1, +18336354687). Set DEMO_MODE=false in Vercel production; redeploy via this commit. Brand already Not Buying (3048bd4) — no revert needed. Remaining: Twilio webhook -> https://notbuying.org/api/sms/inbound (console), real-phone test (opt-in, confirmation, receipt, HELP, STOP).
 - 2026-10-28 Anthropic key added in Vercel prod as ANTHROPIC_KEY (sensitive, can't rename); llm.ts now reads ANTHROPIC_API_KEY ?? ANTHROPIC_KEY. Webhook set on +18336354687 -> /api/sms/inbound (POST). DEMO_MODE=false live. Pending: Randall's real-phone test.
 - 2026-10-28 Real-phone test PASSED (Randall): live SMS flow works end to end. Cleared to invite testers.
+- 2026-10-28 Split engine + picker + visual dashboard + split card; qa-critic pass, P1 fixes; deployed 1e2fc52.

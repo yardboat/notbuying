@@ -36,8 +36,7 @@ export default function TextsToggle({ on: initial }: { on: boolean }) {
   }
 
   return (
-    <section className="mt-16 border-2 border-ink p-4" aria-label="Text messages">
-      <h2 className="display text-xl">Text messages (optional)</h2>
+    <section aria-label="Text messages">
       {on ? (
         <div className="mt-3 space-y-3 text-sm">
           <p>Texts are on. Reply STOP to any message, or turn them off here.</p>

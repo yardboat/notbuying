@@ -34,7 +34,6 @@ export default async function SplitSetup({ searchParams }: { searchParams: Promi
         initial={userSplit(user)}
         carrotLabel={goal?.label ?? null}
         savingsTarget={user?.savings_target_cents ? Number(user.savings_target_cents) : null}
-        savingsLabel={user?.savings_label ?? null}
         next={onboarding ? "/setup/charities?onboarding=1" : "/dashboard?split=1"}
         cta={onboarding ? "Next: pick your charities →" : "Save my split →"}
       />

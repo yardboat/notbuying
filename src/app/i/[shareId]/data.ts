@@ -14,7 +14,6 @@ export type PublicIssue = {
   pledged: number;
   carrot: number;
   savings: number;
-  savingsLabel: string;
   savingsTotal: number;
   savingsTarget: number | null;
   biggest: { item: string; cents: number } | null;
@@ -47,7 +46,6 @@ export async function publicIssue(shareId: string): Promise<PublicIssue | null> 
     pledged: r.pledged,
     carrot: r.carrot,
     savings: r.savings,
-    savingsLabel: "Savings", // public card: never show the private name of the fund
     savingsTotal,
     savingsTarget: user.savings_target_cents ? Number(user.savings_target_cents) : null,
     biggest: r.biggest ? { item: r.biggest.item, cents: r.biggest.price_cents } : null,

@@ -130,7 +130,7 @@ export async function summary(userId: number) {
     goal: goal ? { ...goal, id: Number(goal.id), target_cents: Number(goal.target_cents), saved, pct: pct(saved, Number(goal.target_cents)) } : null,
     held: await heldCarrot(userId),
     pastGoals: await pastGoals(userId),
-    savings: { label: user?.savings_label || "Savings", total: savingsTotal, target: savingsTarget, pct: savingsTarget ? pct(savingsTotal, savingsTarget) : null },
+    savings: { label: "Savings", total: savingsTotal, target: savingsTarget, pct: savingsTarget ? pct(savingsTotal, savingsTarget) : null },
     thisWeek: { count: thisWeek.length, skipped: sum(thisWeek, "price_cents"), pledged: sum(thisWeek, "pledge_cents") },
     lifetime: {
       count: all.length,
@@ -150,12 +150,12 @@ export async function summary(userId: number) {
   };
 }
 
-export async function setSplit(userId: number, s: Split, savingsTargetCents?: number | null, savingsLabel?: string | null) {
+export async function setSplit(userId: number, s: Split, savingsTargetCents?: number | null) {
   if (!validSplit(s)) throw new Error("bad split");
   const q = await db();
   await q(
-    "UPDATE users SET split_carrot = $2, split_savings = $3, split_give = $4, split_set_at = now(), savings_target_cents = $5, savings_label = $6 WHERE id = $1",
-    [userId, s.carrot, s.savings, s.give, savingsTargetCents ?? null, savingsLabel ?? null],
+    "UPDATE users SET split_carrot = $2, split_savings = $3, split_give = $4, split_set_at = now(), savings_target_cents = $5, savings_label = NULL WHERE id = $1",
+    [userId, s.carrot, s.savings, s.give, savingsTargetCents ?? null],
   );
 }
 

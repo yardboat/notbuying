@@ -7,7 +7,6 @@ type Props = {
   initial: Split;
   carrotLabel: string | null;
   savingsTarget: number | null; // cents
-  savingsLabel: string | null;
   next: string;
   cta: string;
 };
@@ -15,20 +14,19 @@ type Props = {
 const snap = (v: number) => Math.round(v / STEP) * STEP;
 const money = (c: number) => `$${(c / 100).toFixed(2)}`;
 
-export default function SplitPicker({ initial, carrotLabel, savingsTarget, savingsLabel, next, cta }: Props) {
+export default function SplitPicker({ initial, carrotLabel, savingsTarget, next, cta }: Props) {
   const [s, setS] = useState<Split>(initial);
   const [target, setTarget] = useState(savingsTarget ? String(savingsTarget / 100) : "");
-  const [label, setLabel] = useState(savingsLabel ?? "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const bar = useRef<HTMLDivElement>(null);
   const drag = useRef<null | "a" | "b">(null);
 
   const carrotName = carrotLabel || "The carrot";
-  const savingsName = label.trim() || "Savings";
+  const savingsName = "Savings";
   const rows: { key: keyof Split; name: string; hint: string }[] = [
     { key: "carrot", name: carrotName, hint: "the thing you're working toward" },
-    { key: "savings", name: savingsName, hint: "cash, an emergency fund, retirement · the name stays private" },
+    { key: "savings", name: savingsName, hint: "cash, an emergency fund, retirement" },
     { key: "give", name: "Giving", hint: `to the charities you pick · at least ${MIN_GIVE}%` },
   ];
   const ex = splitCents(1000, s);
@@ -71,7 +69,7 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
       res = await fetch("/api/split", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...s, savingsTarget: target, savingsLabel: label }),
+        body: JSON.stringify({ ...s, savingsTarget: target }),
       });
     } catch {
       setBusy(false);
@@ -186,20 +184,13 @@ export default function SplitPicker({ initial, carrotLabel, savingsTarget, savin
       </div>
 
       {/* Savings details */}
-      <fieldset className="space-y-5 border-2 border-ink p-4">
-        <legend className="type px-1 text-sm">Savings (optional details)</legend>
-        <label className="block">
-          <span className="type text-sm text-ink-2">What is it for?</span>
-          <input className="field" placeholder="Emergency fund" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} />
-        </label>
-        <label className="block">
-          <span className="type text-sm text-ink-2">Target, if you have one</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl">$</span>
-            <input className="field" inputMode="decimal" placeholder="1000" value={target} onChange={(e) => setTarget(e.target.value)} />
-          </div>
-        </label>
-      </fieldset>
+      <label className="block">
+        <span className="type text-sm text-ink-2">Savings target (optional)</span>
+        <div className="flex items-baseline gap-1">
+          <span className="text-xl">$</span>
+          <input className="field" inputMode="decimal" placeholder="1000" value={target} onChange={(e) => setTarget(e.target.value)} />
+        </div>
+      </label>
 
       {err && <p className="border-l-4 border-hot pl-3 text-sm" role="alert">{err}</p>}
       <button type="button" className="btn btn-hot w-full text-lg" disabled={busy} onClick={save}>

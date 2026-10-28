@@ -49,6 +49,9 @@ _Updated 2026-10-24_
 - Sunday card shows the split + carrot and savings progress (public card never shows the private savings name).
 - Independent QA: ship after fixes; all P1s fixed. Open P2: card carrot % is "now" not "as of week end".
 
+## 2026-10-28 Dashboard simplified (Randall feedback)
+- "Savings" everywhere (custom fund name removed); carrot shown as a plain meter (ransom-letter collage retired from the dashboard); phone simulator removed (logging stays on text; a plain web log box shows only for people with texts off, since texting is optional); three equal bucket cards; extra sections moved into dropdowns.
+
 ## Next (tester wave)
 1. Pre-tester audit on the live SMS build: qa-critic end to end + live-model eval of the LLM-only parser cases (key now set).
 2. First real Sunday recap (Nov 1): force-send one MMS card to Randall before then; confirm cron schedule.

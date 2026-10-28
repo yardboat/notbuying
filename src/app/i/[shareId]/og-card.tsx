@@ -11,8 +11,9 @@ const T = {
   receipt: "#fbf9f3",
   ink: "#15130f",
   ink2: "#4a463e",
-  hot: "#f2380f",
-  hotDeep: "#c42a0b",
+  hot: "#2a5394",
+  hotDeep: "#1c3863",
+  savings: "#a39e92",
   hotDeepInk: "#fff6ef",
 };
 
@@ -49,7 +50,7 @@ function Ledger({ d, scale }: { d: PublicIssue; scale: number }) {
   const carrotName = d.goal?.label.slice(0, 18) ?? "carrot";
   const parts = [
     { k: "carrot", cents: d.carrot, bg: { background: T.hot }, label: `${usd(d.carrot)} ${carrotName}` },
-    { k: "savings", cents: d.savings, bg: { background: T.ink }, label: `${usd(d.savings)} savings` },
+    { k: "savings", cents: d.savings, bg: { background: T.savings }, label: `${usd(d.savings)} savings` },
     { k: "give", cents: d.pledged, bg: { backgroundImage: HATCH }, label: `${usd(d.pledged, { always2: true })} to give` },
   ].filter((p) => p.cents > 0);
   const savingsPct = d.savingsTarget ? Math.min(100, Math.floor((d.savingsTotal / d.savingsTarget) * 100)) : null;
@@ -110,7 +111,7 @@ function Ledger({ d, scale }: { d: PublicIssue; scale: number }) {
           <div style={{ ...display, fontSize: s(26), marginTop: s(4) }}>{savingsPct != null ? `${usd(d.savingsTotal)}: ${savingsPct}%` : `${usd(d.savingsTotal)} saved`}</div>
           {savingsPct != null && (
             <div style={{ display: "flex", height: s(16), marginTop: s(8), border: `${s(3)}px solid ${T.ink}` }}>
-              <div style={{ display: "flex", width: `${savingsPct}%`, background: T.ink }} />
+              <div style={{ display: "flex", width: `${savingsPct}%`, background: T.savings }} />
             </div>
           )}
         </div>

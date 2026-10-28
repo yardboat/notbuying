@@ -12,11 +12,12 @@
   --rule: #15130f;
 
   /* the one accent, in two strengths */
-  --hot: #f2380f; /* fills, bars, shadows, rules, focus. 3.3:1 on paper (non-text OK). Text on it = ink (4.7:1) */
-  --hot-ink: #15130f; /* text on --hot */
-  --hot-deep: #c42a0b; /* accent TEXT on paper (4.8:1) and fills behind light text */
-  --hot-deep-ink: #fff6ef; /* text on --hot-deep (5.3:1) */
-  --hot-wash: rgba(242, 56, 15, 0.07);
+  --hot: #2a5394; /* ink blue: fills, bars, shadows, rules, focus. 6.4:1 on paper. Text on it = --hot-ink (7.1:1) */
+  --hot-ink: #fff6ef; /* text on --hot */
+  --hot-deep: #1c3863; /* navy: accent TEXT on paper (9.8:1), stamps, focus ring */
+  --hot-deep-ink: #fff6ef; /* text on --hot-deep (11:1) */
+  --hot-wash: rgba(42, 83, 148, 0.07);
+  --fill-savings: #a39e92; /* savings bucket fill: warm grey, so it never reads as the accent or as ink */
 
   /* surface */
   --radius: 0px;

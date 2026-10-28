@@ -71,7 +71,7 @@ export default function Picker({ categories, initial, next, onboarding }: { cate
                       onChange={() => choose(cat.key, o.slug)}
                       className="sr-only"
                     />
-                    <span className={`type self-start px-2 py-0.5 text-xs uppercase tracking-[0.12em] ${i === 0 ? "bg-ink text-paper" : i === 1 ? "bg-hot text-ink" : "border-2 border-ink"}`}>
+                    <span className={`type self-start px-2 py-0.5 text-xs uppercase tracking-[0.12em] ${i === 0 ? "bg-ink text-paper" : i === 1 ? "bg-hot text-hot-ink" : "border-2 border-ink"}`}>
                       {TAG_LABELS[o.tag]}
                     </span>
                     <span className="display mt-4 text-2xl leading-[0.95]">{o.name}</span>

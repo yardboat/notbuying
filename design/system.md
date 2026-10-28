@@ -13,15 +13,18 @@ One page. Tokens live at the top of `src/app/globals.css` (`:root` + `@theme`). 
 | `--ink` | #15130f | all body text, rules, borders | 15.6:1 on paper |
 | `--ink-2` | #4a463e | secondary text, labels | 7.9:1 on paper (any size) |
 | `--ink-3` | #6b675f | placeholders, fine meta, ≥12px | 4.7:1 on paper |
-| `--hot` | #f2380f | **fills only**: bars, button fills, offset shadows, focus washes | 3.3:1 on paper (non-text ≥3 OK) |
-| `--hot-ink` | #15130f | text on `--hot` | 4.7:1 |
-| `--hot-deep` | #c42a0b | **accent text** on paper/receipt, stamps, focus ring, fills behind light text | 4.8:1 on paper, 5.4:1 on receipt |
-| `--hot-deep-ink` | #fff6ef | text on `--hot-deep` | 5.3:1 |
+| `--hot` | #2a5394 (ink blue) | fills: bars, button fills, offset shadows, focus washes, large display | 6.4:1 on paper |
+| `--hot-ink` | #fff6ef | text on `--hot` | 7.1:1 |
+| `--hot-deep` | #1c3863 (navy) | accent text on paper/receipt, stamps, focus ring, cutouts | 9.8:1 on paper |
+| `--hot-deep-ink` | #fff6ef | text on `--hot-deep` | 11:1 |
+| `--fill-savings` | #a39e92 | savings bucket fill (bars, charts, card) | non-text |
+
+_2026-10-28: accent moved from hot orange (#f2380f) to ink blue at Randall's direction. Token names kept as `--hot*`._
 
 Rules
 - One accent. Never introduce a second hue. Greens/blues for "success" are banned; success is a stamp.
-- Light text on `--hot` is **not allowed** (3.7:1). Bright hot = black text. Need light text? Use `--hot-deep`.
-- Orange text on paper is always `--hot-deep`. `text-hot` is for icons/large display ≥24px only.
+- Text on `--hot` is `--hot-ink` (light).
+- Accent text on paper is `--hot-deep`. `text-hot` is for icons/large display ≥24px only.
 - `.cutout-hot` (bright fill, ink text) for in-app emphasis; the public card and OG use the deep version (`bg-hot-deep text-hot-deep-ink`) because it photographs better and survives compression.
 
 ## Type

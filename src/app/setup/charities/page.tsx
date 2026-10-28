@@ -26,7 +26,7 @@ export default async function PickCharities({ searchParams }: { searchParams: Pr
       </header>
 
       <section className="pt-6 pb-10">
-        {onboarding && <p className="type text-sm text-ink-2">Step 2 of 2 · pick your charities</p>}
+        {onboarding && <p className="type text-sm text-ink-2">Step 3 of 3 · pick your charities</p>}
         <h1 className="display mt-3 text-5xl sm:text-7xl">{PICK_TITLE}</h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed">{PICK_INTRO}</p>
       </section>

@@ -1,6 +1,6 @@
 import "server-only";
 import { CATEGORY_LABEL, CHARITIES, impactLine, type Category } from "@/lib/charities";
-import { activeGoal, goalSaved, issueNumber, userById, weekRecap } from "@/lib/ledger";
+import { activeGoal, goalSaved, issueNumber, skipsFor, userById, weekRecap } from "@/lib/ledger";
 import { addDays, isSundayET, pct, prettyDate, weekStartET } from "@/lib/money";
 import { readShareId } from "@/lib/share";
 
@@ -12,10 +12,15 @@ export type PublicIssue = {
   count: number;
   kept: number;
   pledged: number;
+  carrot: number;
+  savings: number;
+  savingsLabel: string;
+  savingsTotal: number;
+  savingsTarget: number | null;
   biggest: { item: string; cents: number } | null;
   cats: { label: string; count: number; cents: number }[];
   charities: { name: string; impact: string | null; cents: number }[];
-  goal: { label: string; pct: number } | null;
+  goal: { label: string; pct: number; funded: boolean } | null;
 };
 
 export async function publicIssue(shareId: string): Promise<PublicIssue | null> {
@@ -29,6 +34,9 @@ export async function publicIssue(shareId: string): Promise<PublicIssue | null> 
   const n = await issueNumber(user, t.weekStart);
   const goal = await activeGoal(t.userId);
   const saved = goal ? await goalSaved(Number(goal.id)) : 0;
+  // Savings to date as of the end of this issue's week.
+  const upTo = await skipsFor(t.userId, undefined, addDays(t.weekStart, 7));
+  const savingsTotal = upTo.reduce((a, s) => a + s.savings_cents, 0);
   const first = user.name?.trim().split(/\s+/)[0];
   return {
     issue: String(n).padStart(2, "0"),
@@ -37,6 +45,11 @@ export async function publicIssue(shareId: string): Promise<PublicIssue | null> 
     count: r.count,
     kept: r.skipped,
     pledged: r.pledged,
+    carrot: r.carrot,
+    savings: r.savings,
+    savingsLabel: user.savings_label || "Savings",
+    savingsTotal,
+    savingsTarget: user.savings_target_cents ? Number(user.savings_target_cents) : null,
     biggest: r.biggest ? { item: r.biggest.item, cents: r.biggest.price_cents } : null,
     cats: (Object.entries(r.byCat) as [Category, { count: number; cents: number }][])
       .sort((a, b) => b[1].cents - a[1].cents)
@@ -44,6 +57,6 @@ export async function publicIssue(shareId: string): Promise<PublicIssue | null> 
     charities: Object.entries(r.byCharity)
       .sort((a, b) => b[1] - a[1])
       .map(([slug, cents]) => ({ name: CHARITIES[slug]?.name ?? slug, impact: CHARITIES[slug] ? impactLine(CHARITIES[slug], cents) : null, cents })),
-    goal: goal ? { label: goal.label, pct: pct(saved, Number(goal.target_cents)) } : null,
+    goal: goal ? { label: goal.label, pct: pct(saved, Number(goal.target_cents)), funded: Boolean(goal.reached_at) } : null,
   };
 }

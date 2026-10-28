@@ -5,14 +5,15 @@ import { CATEGORY_CHARITY, CHARITIES, charityFor, impactLine, type Category } fr
 import { categorizeFast, parseFast, type Parsed } from "./parse";
 import { PICK_CATEGORIES, isValidPick, type PickCategory } from "./charity-options";
 import { categorizeWithLlm, parseWithLlm } from "./llm";
-import { addDays, pct, pledgeFor, usd, weekStartET } from "./money";
+import { addDays, pct, usd, weekStartET } from "./money";
+import { splitCents, validSplit, type Split } from "./split";
 import { makeToken } from "./session";
 import { BAD_PRICE, CHITCHAT, NO_GOAL_HINT, bigPriceCancelled, bigPriceConfirm, newGoalReply } from "./copy";
 
-export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; pending_confirm?: string | null; sms_consent?: boolean; pin_hash?: string | null; pin_attempts?: number; pin_locked_until?: string | null; created_at: string };
+export type User = { id: number; phone: string; name: string | null; status: string; pending_item: string | null; pending_confirm?: string | null; sms_consent?: boolean; pin_hash?: string | null; pin_attempts?: number; pin_locked_until?: string | null; split_carrot?: number; split_savings?: number; split_give?: number; split_set_at?: string | null; savings_label?: string | null; savings_target_cents?: number | null; created_at: string };
 export type Goal = { id: number; label: string; target_cents: number; reached_at: string | null };
 export type Skip = {
-  id: number; item: string; price_cents: number; category: Category; charity: string; pledge_cents: number;
+  id: number; item: string; price_cents: number; category: Category; charity: string; pledge_cents: number; carrot_cents: number; savings_cents: number;
   created_at: string; undone_at: string | null; settled_at: string | null; goal_id: number | null;
 };
 
@@ -52,7 +53,7 @@ export async function activeGoal(userId: number) {
 
 export async function goalSaved(goalId: number) {
   const q = await db();
-  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(price_cents),0) AS s FROM skips WHERE goal_id = $1 AND undone_at IS NULL", [goalId]);
+  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(carrot_cents),0) AS s FROM skips WHERE goal_id = $1 AND undone_at IS NULL", [goalId]);
   return Number(r?.s ?? 0);
 }
 
@@ -63,28 +64,99 @@ export async function skipsFor(userId: number, since?: string, until?: string) {
   if (since) { params.push(since); where += ` AND created_at >= ($${params.length}::date AT TIME ZONE 'America/New_York')`; }
   if (until) { params.push(until); where += ` AND created_at < ($${params.length}::date AT TIME ZONE 'America/New_York')`; }
   const rows = await q<Skip>(`SELECT * FROM skips WHERE ${where} ORDER BY created_at DESC`, params);
-  return rows.map((r) => ({ ...r, id: Number(r.id), price_cents: Number(r.price_cents), pledge_cents: Number(r.pledge_cents) }));
+  return rows.map((r) => ({
+    ...r,
+    id: Number(r.id),
+    price_cents: Number(r.price_cents),
+    pledge_cents: Number(r.pledge_cents),
+    carrot_cents: Number(r.carrot_cents ?? r.price_cents),
+    savings_cents: Number(r.savings_cents ?? 0),
+    goal_id: r.goal_id == null ? null : Number(r.goal_id),
+  }));
+}
+
+export function userSplit(u: User | null): Split {
+  const s = { carrot: Number(u?.split_carrot ?? 60), savings: Number(u?.split_savings ?? 30), give: Number(u?.split_give ?? 10) };
+  return validSplit(s) ? s : { carrot: 60, savings: 30, give: 10 };
+}
+
+/** Carrot money logged while no carrot was active (or after one was funded): waits for the next carrot. */
+export async function heldCarrot(userId: number) {
+  const q = await db();
+  const [r] = await q<{ s: string | null }>("SELECT COALESCE(SUM(carrot_cents),0) AS s FROM skips WHERE user_id = $1 AND goal_id IS NULL AND undone_at IS NULL", [userId]);
+  return Number(r?.s ?? 0);
+}
+
+export async function pastGoals(userId: number) {
+  const q = await db();
+  const rows = await q<Goal & { saved: string }>(
+    `SELECT g.id, g.label, g.target_cents, g.reached_at, COALESCE(SUM(s.carrot_cents) FILTER (WHERE s.undone_at IS NULL),0) AS saved
+     FROM goals g LEFT JOIN skips s ON s.goal_id = g.id WHERE g.user_id = $1 AND g.reached_at IS NOT NULL GROUP BY g.id ORDER BY g.reached_at DESC`,
+    [userId],
+  );
+  return rows.map((g) => ({ ...g, id: Number(g.id), target_cents: Number(g.target_cents), saved: Number(g.saved) }));
 }
 
 export async function summary(userId: number) {
+  const user = await userById(userId);
   const goal = await activeGoal(userId);
   const saved = goal ? await goalSaved(goal.id) : 0;
   const all = await skipsFor(userId);
   const week = weekStartET();
   const thisWeek = all.filter((s) => new Date(s.created_at) >= weekStartDate(week));
-  const lifetimeSkipped = all.reduce((a, s) => a + s.price_cents, 0);
-  const lifetimePledged = all.reduce((a, s) => a + s.pledge_cents, 0);
+  const sum = (xs: Skip[], k: "price_cents" | "pledge_cents" | "carrot_cents" | "savings_cents") => xs.reduce((a, s) => a + s[k], 0);
   const unsettled = all.filter((s) => !s.settled_at);
   const byCharity: Record<string, number> = {};
   for (const s of unsettled) byCharity[s.charity] = (byCharity[s.charity] ?? 0) + s.pledge_cents;
-  const donated = all.filter((s) => s.settled_at).reduce((a, s) => a + s.pledge_cents, 0);
+  const donated = sum(all.filter((s) => s.settled_at), "pledge_cents");
+  const byCategory: Record<string, { count: number; cents: number }> = {};
+  for (const s of all) byCategory[s.category] = { count: (byCategory[s.category]?.count ?? 0) + 1, cents: (byCategory[s.category]?.cents ?? 0) + s.price_cents };
+
+  // Last 12 weeks, oldest first, for charts.
+  const weeks: { week: string; carrot: number; savings: number; give: number; count: number }[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const w = addDays(week, -7 * i);
+    const end = weekStartDate(addDays(w, 7));
+    const start = weekStartDate(w);
+    const xs = all.filter((s) => new Date(s.created_at) >= start && new Date(s.created_at) < end);
+    weeks.push({ week: w, carrot: sum(xs, "carrot_cents"), savings: sum(xs, "savings_cents"), give: sum(xs, "pledge_cents"), count: xs.length });
+  }
+  const before = all.filter((s) => new Date(s.created_at) < weekStartDate(weeks[0].week));
+  const savingsTotal = sum(all, "savings_cents");
+  const savingsTarget = user?.savings_target_cents ? Number(user.savings_target_cents) : null;
+
   return {
-    goal: goal ? { ...goal, target_cents: Number(goal.target_cents), saved, pct: pct(saved, Number(goal.target_cents)) } : null,
-    thisWeek: { count: thisWeek.length, skipped: thisWeek.reduce((a, s) => a + s.price_cents, 0), pledged: thisWeek.reduce((a, s) => a + s.pledge_cents, 0) },
-    lifetime: { count: all.length, skipped: lifetimeSkipped, pledged: lifetimePledged, donated },
+    split: userSplit(user),
+    goal: goal ? { ...goal, id: Number(goal.id), target_cents: Number(goal.target_cents), saved, pct: pct(saved, Number(goal.target_cents)) } : null,
+    held: await heldCarrot(userId),
+    pastGoals: await pastGoals(userId),
+    savings: { label: user?.savings_label || "Savings", total: savingsTotal, target: savingsTarget, pct: savingsTarget ? pct(savingsTotal, savingsTarget) : null },
+    thisWeek: { count: thisWeek.length, skipped: sum(thisWeek, "price_cents"), pledged: sum(thisWeek, "pledge_cents") },
+    lifetime: {
+      count: all.length,
+      skipped: sum(all, "price_cents"),
+      carrot: sum(all, "carrot_cents"),
+      savings: savingsTotal,
+      pledged: sum(all, "pledge_cents"),
+      donated,
+      biggest: [...all].sort((x, y) => y.price_cents - x.price_cents)[0] ?? null,
+      since: all.length ? new Date(all[all.length - 1].created_at).toISOString() : null,
+    },
+    weeks,
+    baseline: { carrot: sum(before, "carrot_cents"), savings: sum(before, "savings_cents"), give: sum(before, "pledge_cents") },
+    byCategory,
     owed: byCharity,
-    recent: all.slice(0, 12),
+    recent: all.slice(0, 5),
   };
+}
+
+export async function setSplit(userId: number, s: Split, savingsTargetCents?: number | null, savingsLabel?: string | null) {
+  if (!validSplit(s)) throw new Error("bad split");
+  const q = await db();
+  await q(
+    "UPDATE users SET split_carrot = $2, split_savings = $3, split_give = $4, split_set_at = now(), savings_target_cents = $5, savings_label = $6 WHERE id = $1",
+    [userId, s.carrot, s.savings, s.give, savingsTargetCents ?? null, savingsLabel ?? null],
+  );
 }
 
 function weekStartDate(ymd: string) {
@@ -111,6 +183,8 @@ export async function weekRecap(userId: number, weekStart: string) {
     count: skips.length,
     skipped: skips.reduce((a, s) => a + s.price_cents, 0),
     pledged: skips.reduce((a, s) => a + s.pledge_cents, 0),
+    carrot: skips.reduce((a, s) => a + s.carrot_cents, 0),
+    savings: skips.reduce((a, s) => a + s.savings_cents, 0),
     byCat,
     byCharity,
     biggest: [...skips].sort((a, b) => b.price_cents - a.price_cents)[0] ?? null,
@@ -188,7 +262,9 @@ export async function setGoal(userId: number, rawLabel: string, cents: number) {
   const label = cleanGoal(rawLabel);
   const q = await db();
   await q("UPDATE goals SET active = false WHERE user_id = $1 AND active", [userId]);
-  await q("INSERT INTO goals (user_id, label, target_cents) VALUES ($1, $2, $3)", [userId, label, cents]);
+  const [g] = await q<{ id: number }>("INSERT INTO goals (user_id, label, target_cents) VALUES ($1, $2, $3) RETURNING id", [userId, label, cents]);
+  // Carrot money that was waiting (no carrot, or the last one was funded) moves to the new carrot.
+  await q("UPDATE skips SET goal_id = $2 WHERE user_id = $1 AND goal_id IS NULL AND undone_at IS NULL", [userId, g.id]);
 }
 
 async function log(userId: number | null, direction: "in" | "out", channel: string, body: string, intent?: string, sid: string | null = null) {
@@ -204,19 +280,24 @@ async function recordSkip(user: User, item: string, priceCents: number, raw: str
   const q = await db();
   const category = await categorize(item, hint);
   const charitySlug = await charityChoice(Number(user.id), category);
-  const pledge = pledgeFor(priceCents);
-  const goal = await activeGoal(Number(user.id));
+  const fresh = (await userById(Number(user.id))) ?? user;
+  const split = userSplit(fresh);
+  const parts = splitCents(priceCents, split);
+  const pledge = parts.give;
+  const active = await activeGoal(Number(user.id));
+  // A funded carrot is paused: its share waits (goal_id NULL) until they pick the next one.
+  const goal = active && !active.reached_at ? active : null;
   if (sid) {
     const dup = await q("SELECT 1 FROM skips WHERE message_sid = $1", [sid]);
     if (dup.length) return null; // Twilio retry — already recorded
   }
   await q(
-    `INSERT INTO skips (user_id, goal_id, item, price_cents, category, charity, pledge_cents, raw_text, message_sid)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-    [user.id, goal?.id ?? null, item, priceCents, category, charitySlug, pledge, raw, sid],
+    `INSERT INTO skips (user_id, goal_id, item, price_cents, category, charity, pledge_cents, carrot_cents, savings_cents, raw_text, message_sid)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+    [user.id, goal?.id ?? null, item, priceCents, category, charitySlug, pledge, parts.carrot, parts.savings, raw, sid],
   );
   await q("UPDATE users SET pending_item = NULL WHERE id = $1", [user.id]);
-  return { category, charitySlug, pledge, goal };
+  return { category, charitySlug, pledge, goal, parts, split, funded: active?.reached_at ? active : null };
 }
 
 // ---------- the conversation ----------
@@ -283,8 +364,9 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
       return `Your dashboard: ${await dashboardLink(uid)}`;
     case "totals": {
       const s = await summary(uid);
-      const g = s.goal ? `${s.goal.label}: ${usd(s.goal.saved)} of ${usd(s.goal.target_cents)} (${s.goal.pct}%). ` : "No goal yet. Text: new goal bike 500. ";
-      return `${g}This week: ${s.thisWeek.count} skip${s.thisWeek.count === 1 ? "" : "s"}, ${usd(s.thisWeek.pledged, { always2: true })} pledged. Lifetime pledged: ${usd(s.lifetime.pledged, { always2: true })}.`;
+      const g = s.goal ? `${s.goal.label}: ${usd(s.goal.saved)} of ${usd(s.goal.target_cents)} (${s.goal.pct}%). ` : s.held ? `${usd(s.held)} waiting for a carrot. ` : "No carrot yet. Text: new goal bike 500. ";
+      const sv = `${s.savings.label}: ${usd(s.savings.total)}${s.savings.target ? ` of ${usd(s.savings.target)}` : ""}. `;
+      return `${g}${sv}Given: ${usd(s.lifetime.pledged, { always2: true })}. All time: ${s.lifetime.count} no's, ${usd(s.lifetime.skipped)} not spent. This week: ${s.thisWeek.count}.`;
     }
     case "undo": {
       const [last] = await q<{ id: number; item: string; price_cents: number }>(
@@ -299,8 +381,9 @@ async function respond(user: User, p: Parsed, raw: string, sid: string | null, h
     }
     case "new_goal": {
       if (!p.targetCents) return `What does ${cleanGoal(p.label)} cost? Text: new goal ${p.label} 500`;
+      const waiting = await heldCarrot(uid);
       await setGoal(uid, p.label, p.targetCents);
-      return newGoalReply(cleanGoal(p.label), usd(p.targetCents));
+      return newGoalReply(cleanGoal(p.label), usd(p.targetCents), waiting > 0 ? usd(waiting) : undefined);
     }
     case "bad_price":
       return BAD_PRICE;
@@ -333,19 +416,33 @@ async function skipReply(user: User, item: string, priceCents: number, raw: stri
   if (!r) return null;
   const charity = CHARITIES[r.charitySlug];
   const impact = impactLine(charity, r.pledge);
-  const pledgeTxt = `${usd(r.pledge, { always2: true })} pledged to ${charity.name}${impact ? ` (${impact})` : ""}.`;
-  let goalTxt = `${NO_GOAL_HINT}.`;
+  const giveTxt = `${usd(r.pledge, { always2: true })} to ${charity.name}${impact ? ` (${impact})` : ""}`;
+  const savingsTxt = r.parts.savings > 0 ? `${usd(r.parts.savings)} savings` : "";
+  const uid = Number(user.id);
+
   if (r.goal) {
     const saved = await goalSaved(Number(r.goal.id));
     const target = Number(r.goal.target_cents);
+    const carrotTxt = r.parts.carrot > 0 ? `${usd(r.parts.carrot)} ${r.goal.label}` : "";
+    const splitLine = [carrotTxt, savingsTxt, giveTxt].filter(Boolean).join(", ");
     if (saved >= target && !r.goal.reached_at) {
       const q = await db();
       await q("UPDATE goals SET reached_at = now() WHERE id = $1", [r.goal.id]);
-      return `No ${item}. That's it: ${usd(saved)} skipped toward ${r.goal.label}. GOAL REACHED. ${pledgeTxt} Go get it. Then text: new goal ...`;
+      return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${r.goal.label.toUpperCase()} FUNDED: ${usd(saved)}. Go get it. Pick your next carrot: text new goal camera 800. Its share waits for it.`;
     }
-    goalTxt = `${r.goal.label}: ${usd(saved)} of ${usd(target)} (${pct(saved, target)}%).`;
+    return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${r.goal.label}: ${usd(saved)} of ${usd(target)} (${pct(saved, target)}%). ${mouth(Math.floor(Date.now() / 1000) + item.length)}`;
   }
-  return `No ${item}. +${usd(priceCents)}. ${goalTxt} ${pledgeTxt} ${mouth(Math.floor(Date.now() / 1000) + item.length)}`;
+
+  // No active carrot (never set, or the last one is funded): carrot share waits.
+  const held = await heldCarrot(uid);
+  const waitTxt = r.parts.carrot > 0 ? `${usd(r.parts.carrot)} carrot (waiting)` : "";
+  const splitLine = [waitTxt, savingsTxt, giveTxt].filter(Boolean).join(", ");
+  const nudgeTxt = r.funded
+    ? `${r.funded.label} is funded. ${usd(held)} is waiting for your next carrot: text new goal camera 800.`
+    : held > 0
+      ? `${usd(held)} is waiting for a carrot: text new goal bike 500.`
+      : `${NO_GOAL_HINT}.`;
+  return `No ${item}. +${usd(priceCents)}: ${splitLine}. ${nudgeTxt}`;
 }
 
 export { charityFor };

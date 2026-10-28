@@ -41,29 +41,51 @@ function Stamp({ size }: { size: number }) {
   );
 }
 
+const HATCH = `repeating-linear-gradient(135deg, ${T.ink} 0px, ${T.ink} 3px, ${T.receipt} 3px, ${T.receipt} 9px)`;
+
 function Ledger({ d, scale }: { d: PublicIssue; scale: number }) {
   const s = (n: number) => Math.round(n * scale);
+  const total = d.carrot + d.savings + d.pledged;
+  const carrotName = d.goal?.label.slice(0, 18) ?? "carrot";
+  const parts = [
+    { k: "carrot", cents: d.carrot, bg: { background: T.hot }, label: `${usd(d.carrot)} ${carrotName}` },
+    { k: "savings", cents: d.savings, bg: { background: T.ink }, label: `${usd(d.savings)} ${d.savingsLabel.toLowerCase().slice(0, 18)}` },
+    { k: "give", cents: d.pledged, bg: { backgroundImage: HATCH }, label: `${usd(d.pledged, { always2: true })} to give` },
+  ].filter((p) => p.cents > 0);
+  const savingsPct = d.savingsTarget ? Math.min(100, Math.floor((d.savingsTotal / d.savingsTarget) * 100)) : null;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-      <div style={{ display: "flex", border: `${s(3)}px solid ${T.ink}`, background: T.ink }}>
-        {[["kept", usd(d.kept)], ["to give", usd(d.pledged, { always2: true })]].map(([k, v], i) => (
-          <div key={k} style={{ display: "flex", flexDirection: "column", flex: 1, background: T.receipt, padding: s(16), marginLeft: i ? s(3) : 0 }}>
-            <div style={{ ...type, fontSize: s(20), color: T.ink2 }}>{k}</div>
-            <div style={{ ...display, fontSize: s(52), marginTop: s(6) }}>{v}</div>
-          </div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <div style={{ ...type, fontSize: s(20), color: T.ink2 }}>kept this week</div>
+        <div style={{ ...display, fontSize: s(56) }}>{usd(d.kept)}</div>
+      </div>
+      <div style={{ display: "flex", height: s(30), marginTop: s(10), border: `${s(3)}px solid ${T.ink}`, background: T.receipt, padding: s(2) }}>
+        {total === 0 ? (
+          <div style={{ display: "flex", flex: 1 }} />
+        ) : (
+          parts.map((p, i) => <div key={p.k} style={{ display: "flex", width: `${(p.cents / total) * 100}%`, marginLeft: i ? s(3) : 0, ...p.bg }} />)
+        )}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", marginTop: s(10), fontFamily: "Plex", fontSize: s(19) }}>
+        {parts.map((p) => (
+          <span key={p.k} style={{ display: "flex", alignItems: "center", marginRight: s(18), marginTop: s(2) }}>
+            <span style={{ display: "flex", width: s(14), height: s(14), border: `${s(2)}px solid ${T.ink}`, marginRight: s(7), ...p.bg }} />
+            <span style={{ fontWeight: p.k === "give" ? 700 : 400 }}>{p.label}</span>
+          </span>
         ))}
       </div>
       {d.biggest && (
-        <div style={{ display: "flex", alignItems: "center", marginTop: s(20), fontFamily: "Plex", fontSize: s(22) }}>
+        <div style={{ display: "flex", alignItems: "center", marginTop: s(16), fontFamily: "Plex", fontSize: s(21) }}>
           <span style={{ marginRight: s(10) }}>Biggest no:</span>
           <span style={{ background: T.ink, color: T.paper, padding: `0 ${s(6)}px` }}>{d.biggest.item.slice(0, 28)}</span>
           <span style={{ marginLeft: s(10) }}>{`(${usd(d.biggest.cents)})`}</span>
         </div>
       )}
       {d.charities.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: s(18), paddingTop: s(14), borderTop: `${s(3)}px dashed ${T.ink}`, fontFamily: "Plex", fontSize: s(21) }}>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: s(14), paddingTop: s(12), borderTop: `${s(3)}px dashed ${T.ink}`, fontFamily: "Plex", fontSize: s(20) }}>
           {d.charities.slice(0, 3).map((c) => (
-            <div key={c.name} style={{ display: "flex", justifyContent: "space-between", marginTop: s(4) }}>
+            <div key={c.name} style={{ display: "flex", justifyContent: "space-between", marginTop: s(3) }}>
               <span style={{ display: "flex", alignItems: "center" }}>
                 <span style={{ width: s(10), height: s(10), background: T.hot, marginRight: s(10) }} />
                 <span>{`${c.name}${c.impact ? ` (${c.impact})` : ""}`}</span>
@@ -73,15 +95,24 @@ function Ledger({ d, scale }: { d: PublicIssue; scale: number }) {
           ))}
         </div>
       )}
-      {d.goal && (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: s(18), paddingTop: s(14), borderTop: `${s(3)}px solid ${T.ink}` }}>
-          <div style={{ ...type, fontSize: s(18), color: T.ink2 }}>saying yes to</div>
-          <div style={{ ...display, fontSize: s(30), marginTop: s(4) }}>{`${d.goal.label.slice(0, 26)}: ${d.goal.pct}%`}</div>
-          <div style={{ display: "flex", height: s(18), marginTop: s(10), border: `${s(3)}px solid ${T.ink}` }}>
-            <div style={{ display: "flex", width: `${d.goal.pct}%`, background: T.hot }} />
+      <div style={{ display: "flex", marginTop: s(16), paddingTop: s(12), borderTop: `${s(3)}px solid ${T.ink}` }}>
+        {d.goal && (
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, marginRight: s(20) }}>
+            <div style={{ ...type, fontSize: s(17), color: T.ink2 }}>{d.goal.funded ? "funded" : "saying yes to"}</div>
+            <div style={{ ...display, fontSize: s(26), marginTop: s(4) }}>{`${d.goal.label.slice(0, 14)}: ${d.goal.pct}%`}</div>
+            <div style={{ display: "flex", height: s(16), marginTop: s(8), border: `${s(3)}px solid ${T.ink}` }}>
+              <div style={{ display: "flex", width: `${d.goal.pct}%`, background: T.hot }} />
+            </div>
+          </div>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+          <div style={{ ...type, fontSize: s(17), color: T.ink2 }}>{d.savingsLabel.toLowerCase().slice(0, 22)}</div>
+          <div style={{ ...display, fontSize: s(26), marginTop: s(4) }}>{savingsPct != null ? `${usd(d.savingsTotal)}: ${savingsPct}%` : `${usd(d.savingsTotal)} saved`}</div>
+          <div style={{ display: "flex", height: s(16), marginTop: s(8), border: `${s(3)}px solid ${T.ink}` }}>
+            <div style={{ display: "flex", width: `${savingsPct ?? 100}%`, background: savingsPct != null ? T.ink : "transparent" }} />
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -149,10 +180,10 @@ export async function portrait(d: PublicIssue) {
           <div style={{ display: "flex", marginTop: 24, paddingTop: 32, borderTop: `4px solid ${T.ink}` }}>
             <Headline d={d} big={230} />
           </div>
-          <div style={{ display: "flex", marginTop: 40 }}>
+          <div style={{ display: "flex", marginTop: 70 }}>
             <Ledger d={d} scale={1.25} />
           </div>
-          <div style={{ display: "flex", position: "absolute", right: 70, top: 655 }}><Stamp size={30} /></div>
+          <div style={{ display: "flex", position: "absolute", right: 70, top: 640 }}><Stamp size={30} /></div>
         </div>
       </div>
     ),

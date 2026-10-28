@@ -16,7 +16,9 @@ export const BAD_PRICE = "Needs a real price above $0. Try: croissant 5";
 export const CHITCHAT = "Ha, thanks. I only do ledgers. Text what you skipped + price, like: croissant 5. Or: totals, undo, help.";
 
 /** New goal resets the meter. `label`/`amount` pre-formatted. Lifetime totals stay. */
-export const newGoalReply = (label: string, amount: string) =>
-  `New goal: ${label}, ${amount}. Meter's back to zero. Your lifetime totals and pledges stay put. Every skip from here builds toward it.`;
+export const newGoalReply = (label: string, amount: string, carried?: string) =>
+  carried
+    ? `New carrot: ${label}, ${amount}. ${carried} was waiting, so it's already moving. Savings and giving stay put.`
+    : `New carrot: ${label}, ${amount}. Meter starts at zero. Savings and giving stay put. Every no from here builds toward it.`;
 
-export const NO_GOAL_HINT = "No goal yet. Text: new goal bike 500";
+export const NO_GOAL_HINT = "No carrot yet. Text: new goal bike 500";

@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   if (wantsSms && !demoMode()) {
     const sent = await startSmsConfirm(phone);
-    if (sent.ok) return NextResponse.json({ ok: true, verifySms: true, next: "/setup/charities?onboarding=1" });
+    if (sent.ok) return NextResponse.json({ ok: true, verifySms: true, next: "/setup/split?onboarding=1" });
   }
-  return NextResponse.json({ ok: true, next: "/setup/charities?onboarding=1" });
+  return NextResponse.json({ ok: true, next: "/setup/split?onboarding=1" });
 }

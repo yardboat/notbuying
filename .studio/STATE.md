@@ -55,6 +55,10 @@ _Updated 2026-10-24_
 ## 2026-10-28 Accent -> ink blue
 - --hot #2a5394 (fills, buttons, carrot), --hot-deep #1c3863 navy (accent text, cutouts), light text on both; savings fill warm grey #a39e92. Site, share card, icons, logo SVGs, motion clips (re-rendered), TFV opt-in screenshot all updated.
 
+## 2026-10-29 Edit carrot + clean slate
+- /setup/carrot: edit name/price in place (progress kept; lowering below saved funds it), or pick the next carrot when funded/none (waiting money carries). "Edit carrot" button on the carrot card.
+- Clean slate (dashboard dropdown, type CLEAR): clears all skips (kept on file via cleared_at/undone_at), closes carrots, warns about unsent pledges; split, charities, texts kept; lands on /setup/carrot?fresh=1.
+
 ## Next (tester wave)
 1. Pre-tester audit on the live SMS build: qa-critic end to end + live-model eval of the LLM-only parser cases (key now set).
 2. First real Sunday recap (Nov 1): force-send one MMS card to Randall before then; confirm cron schedule.

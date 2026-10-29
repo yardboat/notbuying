@@ -12,17 +12,18 @@ import { prettyPhone } from "@/lib/sms";
 import SettleButton from "./settle-button";
 import QuickLog from "./quick-log";
 import OpenLink from "./open-link";
+import ClearSlate from "./clear-slate";
 import TextsToggle from "./texts-toggle";
 
 export const dynamic = "force-dynamic";
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string; picked?: string; split?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ welcome?: string; picked?: string; split?: string; carrot?: string }> }) {
   const uid = await currentUserId();
   if (!uid) redirect("/#start");
   const user = await userById(uid);
   if (!user) redirect("/#start");
   const s = await summary(uid);
-  const { welcome, picked, split } = await searchParams;
+  const { welcome, picked, split, carrot } = await searchParams;
   const picks = await charityPicks(uid);
   const week = weekStartET();
   const issue = await issueNumber(user, week);
@@ -60,6 +61,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       )}
       {picked && !welcome && <p className="print-in mb-8 border-2 border-ink p-3 text-sm">{SAVED_TOAST}</p>}
       {split && !welcome && <p className="print-in mb-8 border-2 border-ink p-3 text-sm">Split saved. Your next no divides the new way.</p>}
+      {carrot && !welcome && (
+        <p className="print-in mb-8 border-2 border-ink p-3 text-sm">{carrot === "funded" ? "Carrot saved, and it's already funded. Go get it." : "Carrot saved."}</p>
+      )}
       {!user.split_set_at && !welcome && (
         <Link href="/setup/split" className="mb-8 block border-2 border-ink bg-receipt p-4 text-sm">
           <span className="font-bold">New: choose how each no splits.</span> You&apos;re on {s.split.carrot}/{s.split.savings}/{s.split.give} for now.{" "}
@@ -90,12 +94,17 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           meter={s.goal ? <Meter pct={s.goal.pct} bucket="carrot" label={`Progress toward ${s.goal.label}`} /> : null}
           sub={
             funded
-              ? `Funded. Next one? Text: new goal camera 800${s.held > 0 ? ` (${usd(s.held)} waiting)` : ""}`
+              ? `Funded. Pick your next one${s.held > 0 ? ` (${usd(s.held)} waiting)` : ""}.`
               : s.goal
                 ? `of ${usd(s.goal.target_cents)} · ${s.goal.pct}%`
-                : "No carrot yet. Text: new goal bike 500"
+                : s.held > 0 ? `${usd(s.held)} waiting for a carrot.` : "No carrot yet."
           }
           badge={funded ? "Funded" : null}
+          action={
+            <Link href="/setup/carrot" className="btn w-full">
+              {s.goal && !funded ? "Edit carrot" : "Pick a carrot"}
+            </Link>
+          }
         />
         <Bucket
           label={`Savings · ${s.split.savings}%`}
@@ -199,6 +208,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
         <Drop title="Text messages" meta={user.sms_consent ? "on" : "off"}>
           <TextsToggle on={Boolean(user.sms_consent)} />
+        </Drop>
+
+        <Drop title="Start with a clean slate">
+          <ClearSlate unsent={owedTotal > 0 ? usd(owedTotal, { always2: true }) : null} />
         </Drop>
 
         {!user.sms_consent && !demoMode() && (

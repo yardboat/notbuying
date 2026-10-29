@@ -267,6 +267,38 @@ export async function setGoal(userId: number, rawLabel: string, cents: number) {
   await q("UPDATE skips SET goal_id = $2 WHERE user_id = $1 AND goal_id IS NULL AND undone_at IS NULL", [userId, g.id]);
 }
 
+/**
+ * Edit the carrot. An unfunded carrot is renamed/repriced in place (progress kept).
+ * With no carrot, or a funded one, this starts the next carrot (waiting money carries over).
+ */
+export async function editCarrot(userId: number, rawLabel: string, cents: number) {
+  const q = await db();
+  const label = cleanGoal(rawLabel);
+  const active = await activeGoal(userId);
+  let goalId: number;
+  let mode: "edited" | "new";
+  if (active && !active.reached_at) {
+    await q("UPDATE goals SET label = $2, target_cents = $3 WHERE id = $1", [active.id, label, cents]);
+    goalId = Number(active.id);
+    mode = "edited";
+  } else {
+    await setGoal(userId, label, cents);
+    goalId = Number((await activeGoal(userId))!.id);
+    mode = "new";
+  }
+  const saved = await goalSaved(goalId);
+  if (saved >= cents) await q("UPDATE goals SET reached_at = COALESCE(reached_at, now()) WHERE id = $1", [goalId]);
+  return { mode, label, saved, funded: saved >= cents };
+}
+
+/** Clean slate: every logged no is cleared (kept on file, excluded from all totals), carrots closed. Split, charities and texts settings stay. */
+export async function clearSlate(userId: number) {
+  const q = await db();
+  await q("UPDATE skips SET undone_at = COALESCE(undone_at, now()), cleared_at = now() WHERE user_id = $1 AND cleared_at IS NULL", [userId]);
+  await q("UPDATE goals SET active = false WHERE user_id = $1", [userId]);
+  await q("UPDATE users SET pending_item = NULL, pending_confirm = NULL WHERE id = $1", [userId]);
+}
+
 async function log(userId: number | null, direction: "in" | "out", channel: string, body: string, intent?: string, sid: string | null = null) {
   const q = await db();
   await q("INSERT INTO messages (user_id, direction, channel, body, intent, sid) VALUES ($1,$2,$3,$4,$5,$6)", [userId, direction, channel, body, intent ?? null, sid]);

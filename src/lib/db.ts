@@ -73,6 +73,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS savings_label TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS savings_target_cents INTEGER;
 ALTER TABLE skips ADD COLUMN IF NOT EXISTS carrot_cents INTEGER;
 ALTER TABLE skips ADD COLUMN IF NOT EXISTS savings_cents INTEGER;
+ALTER TABLE skips ADD COLUMN IF NOT EXISTS cleared_at TIMESTAMPTZ;
 UPDATE skips SET carrot_cents = GREATEST(price_cents - pledge_cents, 0), savings_cents = 0 WHERE carrot_cents IS NULL;
 UPDATE users SET sms_consent = true, sms_consent_at = consent_at WHERE consent_at IS NOT NULL AND sms_consent_at IS NULL AND status = 'active';
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS media_url TEXT;
